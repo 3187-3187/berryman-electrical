@@ -11,18 +11,8 @@
   <meta property="og:description" content="Reliable. Professional. Local. Residential & commercial electrical, switchboard upgrades, lighting, fault finding and more across the Northern Rivers." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.berrymanelectrical.com.au/" />
-  <!-- If your custom domain is live, this local image path is fine -->
   <meta property="og:image" content="https://www.berrymanelectrical.com.au/images/electrician-switchboard.png" />
   <meta name="theme-color" content="#0f172a" />
-
-  <script>
-  gtag('event', 'conversion', {
-    'send_to': 'AW-1046839752/abc1234567',
-    'event_callback': function() {
-      // optional: redirect or other logic
-    }
-  });
-</script>
 
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-1046839752"></script>
@@ -83,7 +73,7 @@
         <div class="logo"><span class="logo-bolt">⚡</span><span>Berryman Electrical</span></div>
         <div class="actions">
           <a class="cta alt" href="#services">Services</a>
-          <a class="cta" href="tel:+61424157002">Call Now</a>
+          <a class="cta" href="tel:+61424157002" onclick="gtag('event', 'conversion', {'send_to': 'AW-1046839752/abc1234567'});">Call Now</a>
         </div>
       </nav>
 
@@ -105,9 +95,6 @@
         </div>
 
         <div class="hero-card">
-          <!-- If you’re serving via custom domain, this relative path is perfect. 
-               If you’re viewing via https://<user>.github.io/berryman-electrical/, 
-               you can also use src="/berryman-electrical/images/electrician-switchboard.png?v=3" -->
           <img
             class="hero-shot"
             src="images/electrician-switchboard.png?v=3"
@@ -123,26 +110,11 @@
       <div class="container">
         <h2>Our Services</h2>
         <div class="cardgrid">
-          <div class="card">
-            <h3>Residential & Commercial</h3>
-            <p>New builds, renovations, and maintenance with clean finishes and clear communication.</p>
-          </div>
-          <div class="card">
-            <h3>Fault Finding & Repairs</h3>
-            <p>We identify and repair electrical faults fast with professional precision.</p>
-          </div>
-          <div class="card">
-            <h3>Power & Lighting</h3>
-            <p>Powerpoints, downlights, fans, and outdoor lighting installations done right.</p>
-          </div>
-          <div class="card">
-            <h3>Switchboard Upgrades</h3>
-            <p>Safety switch protection and modern, neat upgrades to meet today’s standards.</p>
-          </div>
-          <div class="card">
-            <h3>Smart Add-ons</h3>
-            <p>EV charging, solar checks, and automation features for modern homes and businesses.</p>
-          </div>
+          <div class="card"><h3>Residential & Commercial</h3><p>New builds, renovations, and maintenance with clean finishes and clear communication.</p></div>
+          <div class="card"><h3>Fault Finding & Repairs</h3><p>We identify and repair electrical faults fast with professional precision.</p></div>
+          <div class="card"><h3>Power & Lighting</h3><p>Powerpoints, downlights, fans, and outdoor lighting installations done right.</p></div>
+          <div class="card"><h3>Switchboard Upgrades</h3><p>Safety switch protection and modern, neat upgrades to meet today’s standards.</p></div>
+          <div class="card"><h3>Smart Add-ons</h3><p>EV charging, solar checks, and automation features for modern homes and businesses.</p></div>
         </div>
       </div>
     </section>
@@ -173,4 +145,3 @@
   </footer>
 </body>
 </html>
-
