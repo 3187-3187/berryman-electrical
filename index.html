@@ -66,6 +66,7 @@
     @media (max-width:900px){.hero{grid-template-columns:1fr}}
   </style>
 </head>
+
 <body>
   <header>
     <div class="container">
@@ -74,7 +75,7 @@
         <div class="actions">
           <a class="cta alt" href="#services">Services</a>
           <a class="cta" href="tel:+61424157002"
-             onclick="gtag('event', 'conversion', {'send_to': 'AW-1046839752/V81mCOLTiwEQyIOW8wM', 'value': 1.0, 'currency': 'AUD'});">
+             onclick="return gtag_report_conversion('tel:+61424157002');">
              Call Now
           </a>
         </div>
@@ -142,5 +143,22 @@
       <p class="legal">© <script>document.write(new Date().getFullYear())</script> Berryman Electrical. ABN 55793387642. Lic 202700C. All rights reserved.</p>
     </div>
   </footer>
+
+  <!-- Conversion tracking script -->
+  <script>
+    function gtag_report_conversion(url) {
+      var callback = function () {
+        if (typeof(url) !== 'undefined') { window.location = url; }
+      };
+      gtag('event', 'conversion', {
+        'send_to': 'AW-1046839752/V81mCOLTiwEQyIOW8wM',
+        'value': 1.0,
+        'currency': 'AUD',
+        'event_callback': callback
+      });
+      return false;
+    }
+  </script>
+
 </body>
 </html>
