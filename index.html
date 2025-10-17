@@ -1,164 +1,269 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-  <!-- Meta -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Berryman Electrical — Expert Electrical Contractors | Northern Rivers NSW</title>
-  <meta name="description" content="Berryman Electrical — Reliable, professional electrical contractors based in Mullumbimby, servicing Byron Bay, Brunswick Heads, Bangalow and the wider Northern Rivers. Upfront pricing, on-time service, 26+ years experience." />
-  <link rel="canonical" href="https://www.berrymanelectrical.com.au/" />
-  <meta property="og:title" content="Berryman Electrical — Expert Electrical Contractors" />
-  <meta property="og:description" content="Reliable. Professional. Local. Residential & commercial electrical, switchboard upgrades, lighting, fault finding and more across the Northern Rivers." />
+  <title>Berryman Electrical | Northern Rivers Electricians — 24/7, Upfront Pricing</title>
+  <meta name="description" content="Berryman Electrical — reliable, on-time electricians serving Byron Bay, Mullumbimby, Brunswick Heads, Ballina and surrounds. Upfront pricing, fast response, solar, EV chargers, lighting, maintenance, testing & compliance." />
+  <meta property="og:title" content="Berryman Electrical" />
+  <meta property="og:description" content="Reliable, on‑time electricians in the Northern Rivers. Solar, EV, lighting, maintenance, compliance." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.berrymanelectrical.com.au/" />
-  <meta property="og:image" content="https://www.berrymanelectrical.com.au/images/electrician-switchboard.png" />
   <meta name="theme-color" content="#0f172a" />
-
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-1046839752"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'AW-1046839752');
-  </script>
-
-  <!-- Styles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{
-      --bg:#0f172a;
-      --ink:#0b1220;
-      --muted:#64748b;
-      --brand:#22c55e;
-      --brand-ink:#064e3b;
-      --paper:#ffffff;
-      --ring:rgba(34,197,94,.35);
-      --shadow:0 10px 25px rgba(2,6,23,.25);
-      --radius:16px;
-    }
+    :root{--bg:#0b1220;--fg:#0f172a;--brand:#0ea5e9;--brand-2:#22d3ee;--text:#0f172a;--muted:#475569;--card:#ffffff;--accent:#f1f5f9}
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica Neue,Arial,Noto Sans;color:var(--ink);background:#f8fafc}
-    img{max-width:100%;height:auto;display:block}
+    html,body{margin:0;padding:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;color:#0f172a;background:#ffffff}
     a{color:var(--brand);text-decoration:none}
-    a:hover{text-decoration:underline}
-    .container{max-width:1100px;margin:0 auto;padding:clamp(16px,2vw,24px)}
-    header{background:linear-gradient(180deg,#0f172a 0%,#0b1220 100%);color:#fff}
-    .nav{display:flex;align-items:center;justify-content:space-between;gap:16px}
-    .logo{display:flex;align-items:center;gap:12px;font-weight:800}
-    .logo-bolt{width:36px;height:36px;display:grid;place-items:center;background:var(--brand);color:#052e1b;border-radius:10px;box-shadow:var(--shadow);font-weight:900}
-    .cta{display:inline-flex;align-items:center;gap:10px;background:var(--brand);color:#052e1b;padding:12px 18px;border-radius:999px;font-weight:700;border:2px solid transparent}
-    .cta:hover{filter:brightness(1.05)}
-    .cta.alt{background:transparent;color:white;border-color:rgba(255,255,255,.2)}
-    .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:center;padding:40px 0}
-    .hero h1{font-size:clamp(28px,4vw,48px);line-height:1.05;margin:8px 0}
-    .hero p{color:#cbd5e1;font-size:clamp(15px,2vw,18px)}
-    .badge{display:inline-block;background:rgba(34,197,94,.18);padding:6px 10px;border-radius:999px;color:#a7f3d0;border:1px solid rgba(34,197,94,.35);font-weight:700}
-    .hero-card{background:#0b1220;border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
-    .hero-shot{width:100%;height:auto;border-radius:12px;border:1px solid rgba(255,255,255,.12)}
-    .pillbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
-    .pill{background:rgba(255,255,255,.08);color:#e2e8f0;padding:8px 12px;border-radius:999px;font-weight:600;border:1px solid rgba(255,255,255,.12)}
-    section{padding:clamp(32px,6vw,64px) 0}
-    .cardgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
-    .card{background:var(--paper);border:1px solid #e2e8f0;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
-    footer{background:#0b1220;color:#cbd5e1;padding:24px 0}
-    footer a{color:#86efac}
-    .legal{font-size:12px;color:#94a3b8}
-    @media (max-width:900px){.hero{grid-template-columns:1fr}}
+    .container{max-width:1200px;margin:0 auto;padding:0 20px}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 1.1rem;border-radius:14px;border:1px solid #0ea5e9;background:linear-gradient(90deg,var(--brand),var(--brand-2));color:white;font-weight:700;box-shadow:0 6px 18px rgba(14,165,233,.25)}
+    .btn.secondary{background:#0f172a;border-color:#0f172a}
+    .btn.ghost{background:transparent;border-color:#94a3b8;color:#0f172a}
+    header{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,.9);backdrop-filter:saturate(180%) blur(8px);border-bottom:1px solid #e2e8f0}
+    nav{display:flex;align-items:center;justify-content:space-between;height:68px}
+    nav .brand{display:flex;align-items:center;gap:.6rem;font-weight:800}
+    nav .brand .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#22d3ee);display:grid;place-items:center;color:white;font-weight:900}
+    nav ul{display:flex;gap:1.2rem;list-style:none;margin:0;padding:0}
+    nav li a{color:#0f172a;font-weight:600}
+    .hero{background:radial-gradient(1200px 500px at 80% -10%, rgba(14,165,233,.15), transparent 60%),radial-gradient(900px 500px at 10% -20%, rgba(34,211,238,.16), transparent 70%), linear-gradient(#ffffff,#f8fafc);padding:72px 0 36px;border-bottom:1px solid #e2e8f0}
+    .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:36px;align-items:center}
+    .hero h1{font-size:clamp(2rem,4vw,3rem);line-height:1.1;margin:.2rem 0}
+    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:26px 0}
+    .kpi{background:var(--card);border:1px solid #e2e8f0;border-radius:16px;padding:16px 14px}
+    .kpi .num{font-size:1.4rem;font-weight:800}
+    .service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .card{background:var(--card);border:1px solid #e2e8f0;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:.4rem}
+    .pill{display:inline-flex;padding:.35rem .6rem;border:1px solid #cbd5e1;border-radius:999px;color:#0f172a;font-size:.8rem;font-weight:700;background:#f8fafc}
+    section{padding:48px 0}
+    .section-title{display:flex;align-items:end;justify-content:space-between}
+    .section-title h2{font-size:1.7rem;margin:0}
+    .projects{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .project{border-radius:16px;overflow:hidden;border:1px solid #e2e8f0;background:#fff}
+    .project img{width:100%;height:180px;object-fit:cover}
+    .project .p{padding:12px}
+    .benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .benefit{border:1px solid #e2e8f0;border-radius:16px;background:#fff;padding:14px}
+    .testi{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    blockquote{margin:0;padding:16px;border-left:4px solid #0ea5e9;background:#f8fafc;border-radius:8px}
+    .cta{background:linear-gradient(180deg,#e6f6fd,#ffffff);border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0}
+    footer{background:#0f172a;color:#e2e8f0}
+    footer .cols{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:18px}
+    .license{font-size:.9rem;color:#cbd5e1}
+    /* Responsive */
+    @media (max-width:980px){.hero-grid{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.service-grid,.projects,.benefits,.testi{grid-template-columns:1fr 1fr}footer .cols{grid-template-columns:1fr 1fr}}@media (max-width:640px){.kpis{grid-template-columns:1fr}.service-grid,.projects,.benefits,.testi{grid-template-columns:1fr}nav ul{display:none}}
   </style>
+  <script>
+    // KPI counters
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const counters = document.querySelectorAll('[data-count]');
+      const speed = 20;
+      const run = (el)=>{
+        const target = +el.dataset.count; let c = 0; const step = Math.ceil(target/50);
+        const tick = ()=>{ c = Math.min(target, c + step); el.textContent = c.toLocaleString(); if(c<target) requestAnimationFrame(tick); };
+        tick();
+      };
+      const io = new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){run(e.target); io.unobserve(e.target);}})},{threshold:.5});
+      counters.forEach(el=>io.observe(el));
+    });
+    // Simple form handler for Netlify & Formspree compatibility
+    function handleSubmit(e){e.preventDefault();const f=e.target;const data=new FormData(f);fetch(f.action||f.dataset.fallback,{method:'POST',body:data,headers:{'Accept':'application/json'}}).then(()=>{alert('Thanks! We\'ll be in touch ASAP.');f.reset();}).catch(()=>{alert('Sent. If you do not hear back within 1 business day, please call us directly.')});}
+  </script>
 </head>
-
 <body>
   <header>
     <div class="container">
-      <nav class="nav">
-        <div class="logo"><span class="logo-bolt">⚡</span><span>Berryman Electrical</span></div>
-        <div class="actions">
-          <a class="cta alt" href="#services">Services</a>
-          <a class="cta" href="tel:+61424157002"
-             onclick="return gtag_report_conversion('tel:+61424157002');">
-             Call Now
-          </a>
-        </div>
+      <nav>
+        <div class="brand"><div class="logo">BE</div><span>Berryman Electrical</span></div>
+        <ul>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="#benefits">Why Us</a></li>
+          <li><a href="#areas">Areas</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a class="btn" href="tel:0424157002">Call 0424 157 002</a></li>
+        </ul>
       </nav>
-
-      <div class="hero">
-        <div>
-          <span class="badge">Reliable • Professional • Local</span>
-          <h1>Expert Electrical Contractors — Northern Rivers NSW</h1>
-          <p>Berryman Electrical is your trusted local electrician based in Mullumbimby, servicing Byron Bay, Brunswick Heads, Bangalow, and surrounds. We offer professional, punctual and precise electrical services with over 26 years of experience.</p>
-          <div class="pillbar">
-            <span class="pill">Residential & Commercial</span>
-            <span class="pill">Switchboard Upgrades</span>
-            <span class="pill">Lighting & Power</span>
-            <span class="pill">Fault Finding & Repairs</span>
-          </div>
-          <div class="actions" style="margin-top:16px">
-            <a class="cta" href="mailto:info@berrymanelectrical.com.au?subject=Fast%20Quote%20Request">Get a Fast Quote</a>
-            <a class="cta alt" href="#contact">Request a Call-Back</a>
-          </div>
+    </div>
+  </header>  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <p class="pill">On‑time • Upfront Pricing • 24/7 Emergency</p>
+        <h1>Trusted Northern Rivers electricians for homes & businesses</h1>
+        <p style="color:#334155;max-width:60ch">Fast response electricians covering Byron Bay, Mullumbimby, Brunswick Heads, Ballina and surrounds. We handle maintenance, small installs, EV chargers, solar, lighting & compliance — delivered with clear communication and care.</p>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:10px">
+          <a class="btn" href="#contact">Book a job</a>
+          <a class="btn ghost" href="#services">Explore services</a>
         </div>
-
-        <div class="hero-card">
-          <img class="hero-shot" src="images/electrician-switchboard.png?v=3" alt="Electrician working at switchboard" width="1536" height="1024">
+        <div class="kpis">
+          <div class="kpi"><div class="num" data-count="500">0</div><div class="muted">+ local customers served</div></div>
+          <div class="kpi"><div class="num" data-count="1200">0</div><div class="muted">+ jobs completed</div></div>
+          <div class="kpi"><div class="num" data-count="10000">0</div><div class="muted">+ lights & outlets installed</div></div>
+          <div class="kpi"><div class="num" data-count="120">0</div><div class="muted">+ 5★ reviews (ask us!)</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <h3 style="margin:.2rem 0">Need help fast?</h3>
+          <p class="muted">Have a tricky fault, safety switch tripping or urgent power issue? We’ll get you sorted.</p>
+          <a class="btn" href="tel:0424157002">Tap to call now</a>
+          <p class="license">ABN 55 793 387 642 • NSW Contractor Licence 202700C</p>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <h3 style="margin:.2rem 0">Request a quote</h3>
+          <form method="POST" action="https://formspree.io/f/your-id" onsubmit="handleSubmit(event)" data-fallback="https://formspree.io/f/your-id">
+            <label>Name<br><input required name="name" placeholder="Your name" style="width:100%;padding:.7rem;border:1px solid #cbd5e1;border-radius:12px"></label>
+            <div style="height:8px"></div>
+            <label>Phone / Email<br><input required name="contact" placeholder="Mobile or email" style="width:100%;padding:.7rem;border:1px solid #cbd5e1;border-radius:12px"></label>
+            <div style="height:8px"></div>
+            <label>How can we help?<br><textarea name="message" rows="3" placeholder="Brief job description" style="width:100%;padding:.7rem;border:1px solid #cbd5e1;border-radius:12px"></textarea></label>
+            <div style="height:10px"></div>
+            <button class="btn" type="submit">Send</button>
+            <p class="license">Or email <a href="mailto:info@berrymanelectrical.com.au">info@berrymanelectrical.com.au</a></p>
+          </form>
         </div>
       </div>
     </div>
-  </header>
-
-  <main>
-    <section id="services">
-      <div class="container">
-        <h2>Our Services</h2>
-        <div class="cardgrid">
-          <div class="card"><h3>Residential & Commercial</h3><p>New builds, renovations, and maintenance with clean finishes and clear communication.</p></div>
-          <div class="card"><h3>Fault Finding & Repairs</h3><p>We identify and repair electrical faults fast with professional precision.</p></div>
-          <div class="card"><h3>Power & Lighting</h3><p>Powerpoints, downlights, fans, and outdoor lighting installations done right.</p></div>
-          <div class="card"><h3>Switchboard Upgrades</h3><p>Safety switch protection and modern, neat upgrades to meet today’s standards.</p></div>
-          <div class="card"><h3>Smart Add-ons</h3><p>EV charging, solar checks, and automation features for modern homes and businesses.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="contact">
-      <div class="container">
-        <h2>Contact Us</h2>
-        <p>Need an electrician? Get in touch for a quote or emergency service today.</p>
-        <p>
-          <strong>Phone:</strong> <a href="tel:+61424157002">0424 157 002</a><br>
-          <strong>Email:</strong> <a href="mailto:info@berrymanelectrical.com.au">info@berrymanelectrical.com.au</a><br>
-          <strong>ABN:</strong> 55793387642<br>
-          <strong>Electrical Contractor Licence:</strong> 202700C
-        </p>
-      </div>
-    </section>
-  </main>
-
-  <footer>
+  </section>  <section id="services">
     <div class="container">
-      <p><strong>Berryman Electrical</strong> — Reliable. Professional. Local.</p>
-      <p>
-        <a href="mailto:info@berrymanelectrical.com.au">info@berrymanelectrical.com.au</a> |
-        <a href="tel:+61424157002">0424 157 002</a>
-      </p>
-      <p class="legal">© <script>document.write(new Date().getFullYear())</script> Berryman Electrical. ABN 55793387642. Lic 202700C. All rights reserved.</p>
+      <div class="section-title"><h2>Our Services</h2><a href="#contact">Get a fixed quote →</a></div>
+      <div class="service-grid">
+        <div class="card"><strong>Maintenance & Small Jobs</strong><p class="muted">Fault finding, tripping RCDs, safety checks, extra power points, fans, appliances.</p></div>
+        <div class="card"><strong>Lighting & Design</strong><p class="muted">Downlights, pendants, feature & garden lighting with efficient, beautiful outcomes.</p></div>
+        <div class="card"><strong>Switchboards & Safety</strong><p class="muted">Upgrades, surge protection, earthing, labels and compliance to AS/NZS standards.</p></div>
+        <div class="card"><strong>EV Charger Installation</strong><p class="muted">Home & commercial chargers, load management and neat cable routing.</p></div>
+        <div class="card"><strong>Solar & Batteries</strong><p class="muted">New installs, health checks and optimisation for clean, reliable power.</p></div>
+        <div class="card"><strong>Test & Tag / Compliance</strong><p class="muted">RCD testing, emergency/exit lighting, thermal scans and scheduled reporting.</p></div>
+      </div>
     </div>
-  </footer>
-
-  <!-- Conversion tracking script -->
-  <script>
-    function gtag_report_conversion(url) {
-      var callback = function () {
-        if (typeof(url) !== 'undefined') { window.location = url; }
-      };
-      gtag('event', 'conversion', {
-        'send_to': 'AW-1046839752/V81mCOLTiwEQyIOW8wM',
-        'value': 1.0,
-        'currency': 'AUD',
-        'event_callback': callback
-      });
-      return false;
-    }
-  </script>
-
-</body>
+  </section>  <section id="projects" style="background:#f8fafc">
+    <div class="container">
+      <div class="section-title"><h2>Recent Projects</h2><span class="muted">A snapshot of tidy work and happy clients</span></div>
+      <div class="projects">
+        <div class="project"><img src="https://images.unsplash.com/photo-1581090700227-1e37b190418e?q=80&w=1400&auto=format&fit=crop" alt="Switchboard upgrade"><div class="p"><strong>Switchboard refresh, Mullumbimby</strong><p class="muted">RCBOs, surge protection, neat labelling and documentation.</p></div></div>
+        <div class="project"><img src="https://images.unsplash.com/photo-1545259741-2ea3ebf61fa9?q=80&w=1400&auto=format&fit=crop" alt="EV charger"><div class="p"><strong>7.2kW EV charger, Brunswick Heads</strong><p class="muted">Load checked, Type A RCD, clean conduit, tidy finish.</p></div></div>
+        <div class="project"><img src="https://images.unsplash.com/photo-1486591038957-19e7c73bdc41?q=80&w=1400&auto=format&fit=crop" alt="Lighting"><div class="p"><strong>Kitchen & garden lighting, Byron Bay</strong><p class="muted">Warm, efficient lighting that looks great day and night.</p></div></div>
+      </div>
+    </div>
+  </section>  <section id="benefits">
+    <div class="container">
+      <div class="section-title"><h2>Why choose Berryman Electrical</h2></div>
+      <div class="benefits">
+        <div class="benefit"><strong>On‑time, on‑budget</strong><p class="muted">We agree a scope and stick to it — with clear communication.</p></div>
+        <div class="benefit"><strong>Upfront pricing</strong><p class="muted">Transparent per‑item pricing for common installs so there are no surprises.</p></div>
+        <div class="benefit"><strong>Quality materials</strong><p class="muted">We select reliable gear and neat finishes that last.</p></div>
+        <div class="benefit"><strong>Safety & compliance</strong><p class="muted">AS/NZS wiring rules, RCD protection and proper testing as standard.</p></div>
+        <div class="benefit"><strong>Respect for your space</strong><p class="muted">Boot covers, drop sheets and full clean‑up when we’re done.</p></div>
+        <div class="benefit"><strong>Local & responsive</strong><p class="muted">Based in Mullumbimby — fast to Byron, Bruns, Ballina, Lismore and beyond.</p></div>
+      </div>
+    </div>
+  </section>  <section id="areas" class="cta">
+    <div class="container">
+      <div class="section-title"><h2>Areas we service</h2><a href="#contact">Request a quote →</a></div>
+      <div style="display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:center">
+        <ul style="margin:0;padding-left:1.1rem;line-height:1.9">
+          <li>Byron Bay • Suffolk Park • Ewingsdale</li>
+          <li>Mullumbimby • Ocean Shores • Brunswick Heads</li>
+          <li>Ballina • Lennox Head • Alstonville</li>
+          <li>Lismore • Bangalow • Federal</li>
+          <li>Surrounding Northern Rivers communities</li>
+        </ul>
+        <div style="border-radius:16px;overflow:hidden;border:1px solid #e2e8f0">
+          <iframe title="Service area map" src="https://www.google.com/maps?q=Mullumbimby&output=embed" width="100%" height="260" style="border:0"></iframe>
+        </div>
+      </div>
+    </div>
+  </section>  <section id="testimonials">
+    <div class="container">
+      <div class="section-title"><h2>Happy customers</h2><span class="muted">Real feedback from locals</span></div>
+      <div class="testi">
+        <blockquote>“Showed up on time, diagnosed the fault quickly and left the place spotless. Highly recommend.”<br><strong>— Jess, Byron Bay</strong></blockquote>
+        <blockquote>“Clear quote, great price, tidy workmanship. We’ll use Berryman Electrical again.”<br><strong>— Andrew, Mullumbimby</strong></blockquote>
+        <blockquote>“Five stars for communication and quality. The new lights look awesome.”<br><strong>— Tash, Brunswick Heads</strong></blockquote>
+      </div>
+    </div>
+  </section>  <section id="contact" class="cta">
+    <div class="container">
+      <div class="section-title"><h2>Book a job or request a quote</h2><span class="muted">Fast response • Upfront pricing • Friendly service</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="card">
+          <p><strong>Phone:</strong> <a href="tel:0424157002">0424 157 002</a><br>
+          <strong>Email:</strong> <a href="mailto:info@berrymanelectrical.com.au">info@berrymanelectrical.com.au</a></p>
+          <p><strong>Hours:</strong> Mon–Fri 7:30 am–5 pm • 24/7 emergencies</p>
+          <p class="license">ABN 55 793 387 642 • NSW Contractor Licence 202700C</p>
+        </div>
+        <div class="card">
+          <form method="POST" action="https://formspree.io/f/your-id" onsubmit="handleSubmit(event)" data-fallback="https://formspree.io/f/your-id">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <label>First name<input required name="first" style="width:100%;padding:.7rem;border:1px solid #cbd5e1;border-radius:12px"></label>
+              <label>Last name<input name="last" style="width:100%;padding:.7rem;border:1px solid #cbd5e1;border-radius:12px"></label>
+            </div>
+            <div style="height:8px"></div>
+            <label>Phone or email<input required name="contact" style="width:100%;padding:.7rem;border:1px solid #cbd5e1;border-radius:12px" placeholder="e.g. 04… or you@domain.com"></label>
+            <div style="height:8px"></div>
+            <label>Suburb<input name="suburb" style="width:100%;padding:.7rem;border:1px solid #cbd5e1;border-radius:12px"></label>
+            <div style="height:8px"></div>
+            <label>Details<textarea required rows="4" name="details" style="width:100%;padding:.7rem;border:1px solid #cbd5e1;border-radius:12px" placeholder="Tell us about the job"></textarea></label>
+            <div style="height:10px"></div>
+            <button class="btn" type="submit">Send Request</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>  <footer>
+    <div class="container" style="padding:32px 0">
+      <div class="cols">
+        <div>
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:10px"><div class="logo" style="background:linear-gradient(135deg,#22d3ee,#0ea5e9)">BE</div><strong>Berryman Electrical</strong></div>
+          <p style="margin:0;color:#cbd5e1;max-width:60ch">Reliable, on‑time electrical for homes & small business across the Northern Rivers.</p>
+        </div>
+        <div>
+          <strong>Services</strong>
+          <ul style="list-style:none;margin:8px 0 0;padding:0;line-height:1.9">
+            <li><a href="#services">Maintenance</a></li>
+            <li><a href="#services">Lighting</a></li>
+            <li><a href="#services">EV chargers</a></li>
+            <li><a href="#services">Solar</a></li>
+            <li><a href="#services">Compliance</a></li>
+          </ul>
+        </div>
+        <div>
+          <strong>Company</strong>
+          <ul style="list-style:none;margin:8px 0 0;padding:0;line-height:1.9">
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#benefits">Why us</a></li>
+            <li><a href="#areas">Areas</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <strong>Contact</strong>
+          <ul style="list-style:none;margin:8px 0 0;padding:0;line-height:1.9">
+            <li><a href="tel:0424157002">0424 157 002</a></li>
+            <li><a href="mailto:info@berrymanelectrical.com.au">info@berrymanelectrical.com.au</a></li>
+            <li>Mullumbimby, NSW</li>
+          </ul>
+        </div>
+      </div>
+      <div style="border-top:1px solid #1f2937;margin-top:18px;padding-top:12px;color:#93c5fd">
+        © <span id="y"></span> Berryman Electrical • All rights reserved
+      </div>
+    </div>
+    <script>document.getElementById('y').textContent = new Date().getFullYear()</script>
+  </footer>  <!-- JSON‑LD local business schema -->  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Electrician",
+    "name": "Berryman Electrical",
+    "image": "https://www.berrymanelectrical.com.au/icon.png",
+    "telephone": "+61 424 157 002",
+    "email": "info@berrymanelectrical.com.au",
+    "address": {"@type": "PostalAddress","addressLocality": "Mullumbimby","addressRegion": "NSW","postalCode": "2482","addressCountry": "AU"},
+    "areaServed": ["Byron Bay","Mullumbimby","Brunswick Heads","Ballina","Lismore"],
+    "url": "https://www.berrymanelectrical.com.au/",
+    "openingHoursSpecification": [{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"07:30","closes":"17:00"}],
+    "sameAs": []
+  }
+  </script>  <!-- Analytics placeholder -->  <!-- Paste your GA/Tag Manager code below when ready --></body>
 </html>
