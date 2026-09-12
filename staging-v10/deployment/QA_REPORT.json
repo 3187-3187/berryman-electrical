@@ -1,0 +1,21 @@
+{
+  "html_pages": 27,
+  "internal_links_checked": 1003,
+  "image_placements_checked": 42,
+  "json_ld_blocks_checked": 72,
+  "qa_issues": [],
+  "large_image_assets_over_350kb": [],
+  "staging_robots": "Disallow all + HTML noindex + X-Robots-Tag template",
+  "render_smoke_test": {
+    "viewports": [
+      "390x844 mobile",
+      "768x1024 tablet",
+      "1440x1000 desktop"
+    ],
+    "routes_tested_per_viewport": 27,
+    "route_failures": 0,
+    "console_errors": 0,
+    "mobile_menu_open_close": "pass",
+    "staging_form_submit_status": "pass"
+  }
+}

@@ -1,0 +1,4 @@
+current_live_url,target_url,action,notes
+/,/,keep,Current public crawl resolves to the one-page homepage; preserve root URL.
+#services,/services/,client-navigation,"Current services navigation is an on-page anchor, not a separate crawlable URL."
+#contact,/contact/,client-navigation,Current contact is an on-page section; no server redirect is required for URL fragments.
