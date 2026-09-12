@@ -1,0 +1,177 @@
+name: Notify IndexNow
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  notify-indexnow:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Wait for GitHub Pages deployment
+        run: sleep 90
+
+      - name: Submit changed URLs to IndexNow
+        env:
+          SITE: https://www.berrymanelectrical.com.au
+          HOST_NAME: www.berrymanelectrical.com.au
+          INDEXNOW_KEY: b270932fc3484cb1a812f9fc09ab043f
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+          import time
+          import urllib.error
+          import urllib.request
+          import xml.etree.ElementTree as ET
+
+          site = os.environ["SITE"].rstrip("/")
+          host = os.environ["HOST_NAME"]
+          key = os.environ["INDEXNOW_KEY"]
+          before = os.environ.get("BEFORE_SHA", "")
+          after = os.environ.get("AFTER_SHA", "")
+
+          def fetch(url, attempts=6):
+              last_error = None
+              for _ in range(attempts):
+                  try:
+                      with urllib.request.urlopen(url, timeout=30) as response:
+                          return response.read()
+                  except Exception as exc:
+                      last_error = exc
+                      time.sleep(15)
+              raise last_error
+
+          sitemap_xml = fetch(f"{site}/sitemap.xml")
+          root = ET.fromstring(sitemap_xml)
+          ns = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+
+          current_urls = {
+              node.text.strip()
+              for node in root.findall(".//sm:loc", ns)
+              if node.text
+          }
+
+          if not current_urls:
+              current_urls = {
+                  node.text.strip()
+                  for node in root.findall(".//loc")
+                  if node.text
+              }
+
+          def path_to_url(path):
+              path = path.strip("/")
+
+              if path == "index.html":
+                  return f"{site}/"
+
+              if path.endswith("/index.html"):
+                  return f"{site}/{path[:-10]}"
+
+              if path.endswith(".html") and path != "404.html":
+                  return f"{site}/{path}"
+
+              return None
+
+          submit_all = False
+          changed_urls = set()
+
+          if not before or set(before) == {"0"}:
+              submit_all = True
+
+          else:
+              try:
+                  diff = subprocess.check_output(
+                      ["git", "diff", "--name-status", before, after],
+                      text=True,
+                  )
+              except Exception:
+                  submit_all = True
+                  diff = ""
+
+              for line in diff.splitlines():
+                  parts = line.split("\t")
+                  status = parts[0]
+                  paths = parts[1:]
+
+                  if any(
+                      path in {"robots.txt", "sitemap.xml"}
+                      or path.startswith("assets/")
+                      for path in paths
+                  ):
+                      submit_all = True
+
+                  if status.startswith("R") and len(paths) >= 2:
+                      old_url = path_to_url(paths[0])
+                      new_url = path_to_url(paths[1])
+
+                      if old_url:
+                          changed_urls.add(old_url)
+
+                      if new_url and new_url in current_urls:
+                          changed_urls.add(new_url)
+
+                      continue
+
+                  for path in paths:
+                      url = path_to_url(path)
+
+                      if not url:
+                          continue
+
+                      if status.startswith("D"):
+                          changed_urls.add(url)
+
+                      elif url in current_urls:
+                          changed_urls.add(url)
+
+          urls = sorted(current_urls if submit_all else changed_urls)
+
+          if not urls:
+              print("No indexable URL changes detected. Nothing to submit.")
+              raise SystemExit(0)
+
+          payload = {
+              "host": host,
+              "key": key,
+              "keyLocation": f"{site}/{key}.txt",
+              "urlList": urls,
+          }
+
+          request = urllib.request.Request(
+              "https://api.indexnow.org/indexnow",
+              data=json.dumps(payload).encode("utf-8"),
+              headers={"Content-Type": "application/json; charset=utf-8"},
+              method="POST",
+          )
+
+          try:
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  print(
+                      f"IndexNow response: {response.status} "
+                      f"{response.reason}. Submitted {len(urls)} URL(s)."
+                  )
+
+          except urllib.error.HTTPError as exc:
+              if exc.code == 202:
+                  print(
+                      f"IndexNow response: 202 Accepted. "
+                      f"Submitted {len(urls)} URL(s); key validation is pending."
+                  )
+              else:
+                  raise
+          PY
