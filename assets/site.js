@@ -29,8 +29,7 @@
      details,
      '',
      photoCount ? `I have ${photoCount} photo${photoCount===1?'':'s'} to attach to this email.` : 'No photos selected.'
-   ].join('
-');
+   ] .join('\n');
    const s=f.querySelector('.success');
    if(s){s.hidden=false;s.style.display='block';}
    window.location.href='mailto:info@berrymanelectrical.com.au?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
