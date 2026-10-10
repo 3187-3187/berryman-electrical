@@ -137,6 +137,16 @@ function readKeyOk(req,env,u){
   const query=u.searchParams.get('key')||'';
   return bearer===env.BRIDGE_READ_KEY||query===env.BRIDGE_READ_KEY;
 }
+async function googleMcpAuth(req,env){
+  const auth=req.headers.get('authorization')||'';
+  if(!auth.startsWith('Bearer '))return false;
+  const token=auth.slice(7).trim();if(!token)return false;
+  const r=await fetch('https://oauth2.googleapis.com/tokeninfo?access_token='+encodeURIComponent(token));
+  if(!r.ok)return false;
+  const d=await r.json();
+  const scopes=String(d.scope||'').split(/\s+/);
+  return d.aud===env.GOOGLE_CLIENT_ID && scopes.includes('https://www.googleapis.com/auth/webmasters.readonly');
+}
 async function session(req,env){
   const t=cookies(req).gsc_session;if(!t||!env.SESSION_SECRET)return null;return unseal(t,env.SESSION_SECRET);
 }
@@ -273,8 +283,7 @@ export default {
     if(req.method==='OPTIONS')return new Response(null,{status:204,headers:{'access-control-allow-origin':'*','access-control-allow-methods':'POST,OPTIONS','access-control-allow-headers':'authorization,content-type,mcp-protocol-version'}});
     if(req.method!=='POST')return new Response('Method not allowed',{status:405,headers:{allow:'POST, OPTIONS'}});
     if(!env.GOOGLE_REFRESH_TOKEN)return json({error:'Server connection is not configured.'},503);
-    if(!env.BRIDGE_READ_KEY)return json({error:'MCP read access is not configured.'},503);
-    if(!readKeyOk(req,env,u))return new Response(JSON.stringify({jsonrpc:'2.0',id:null,error:{code:-32001,message:'Unauthorized'}}),{status:401,headers:{'content-type':'application/json; charset=utf-8','www-authenticate':'Bearer'}});
+    if(!(await googleMcpAuth(req,env)))return new Response(JSON.stringify({jsonrpc:'2.0',id:null,error:{code:-32001,message:'Google OAuth authentication required'}}),{status:401,headers:{'content-type':'application/json; charset=utf-8','www-authenticate':'Bearer'}});
     let body;try{body=await req.json()}catch{return mcpError(null,-32700,'Parse error')}
     if(Array.isArray(body))return mcpError(null,-32600,'Batch requests are not supported');
     const id=body?.id??null,method=body?.method,params=body?.params||{};
