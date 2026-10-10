@@ -160,6 +160,54 @@ async function gscPost(site,body,token){
   const d=await r.json();if(!r.ok)throw new Error(d.error?.message||'Google Search Console request failed');return d;
 }
 
+const MCP_TOOLS=[
+ {name:'gsc_status',description:'Check whether the Berryman Electrical Google Search Console bridge is connected and ready.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,destructiveHint:false,openWorldHint:false}},
+ {name:'gsc_summary',description:'Get overall Google Search Console performance for Berryman Electrical for a recent period.',inputSchema:{type:'object',properties:{days:{type:'integer',minimum:1,maximum:480,default:28}},additionalProperties:false},annotations:{readOnlyHint:true,destructiveHint:false,openWorldHint:false}},
+ {name:'gsc_top_queries',description:'Get the top Google Search queries for Berryman Electrical with clicks, impressions, CTR and average position.',inputSchema:{type:'object',properties:{days:{type:'integer',minimum:1,maximum:480,default:28},limit:{type:'integer',minimum:1,maximum:1000,default:100}},additionalProperties:false},annotations:{readOnlyHint:true,destructiveHint:false,openWorldHint:false}},
+ {name:'gsc_query',description:'Inspect one exact Google Search query and see which Berryman Electrical page or pages appeared, with clicks, impressions, CTR and average position.',inputSchema:{type:'object',required:['query'],properties:{query:{type:'string',minLength:1},days:{type:'integer',minimum:1,maximum:480,default:28}},additionalProperties:false},annotations:{readOnlyHint:true,destructiveHint:false,openWorldHint:false}},
+ {name:'gsc_pages',description:'Get the Berryman Electrical pages receiving Google Search visibility, with clicks, impressions, CTR and average position.',inputSchema:{type:'object',properties:{days:{type:'integer',minimum:1,maximum:480,default:28},limit:{type:'integer',minimum:1,maximum:1000,default:100}},additionalProperties:false},annotations:{readOnlyHint:true,destructiveHint:false,openWorldHint:false}},
+ {name:'gsc_opportunities',description:'Find Google Search queries with meaningful impressions and average positions 4 through 20, useful for prioritising SEO opportunities.',inputSchema:{type:'object',properties:{days:{type:'integer',minimum:1,maximum:480,default:28},minImpressions:{type:'integer',minimum:1,default:20}},additionalProperties:false},annotations:{readOnlyHint:true,destructiveHint:false,openWorldHint:false}}
+];
+
+function mcpResult(id,result){return json({jsonrpc:'2.0',id,result},200,{'cache-control':'no-store'});}
+function mcpError(id,code,message,data){return json({jsonrpc:'2.0',id,error:{code,message,...(data===undefined?{}:{data})}},200,{'cache-control':'no-store'});}
+function mcpToolPayload(data){return {content:[{type:'text',text:JSON.stringify(data)}],structuredContent:data,isError:false};}
+
+async function mcpCallTool(name,args,env){
+  const site='sc-domain:berrymanelectrical.com.au';
+  const token=await getAccessToken(env.GOOGLE_REFRESH_TOKEN,env);
+  if(name==='gsc_status')return {ok:true,site,serverConnected:true,readOnly:true};
+  if(name==='gsc_summary'){
+    const dts=dateRange(args?.days),d=await gscPost(site,{startDate:dts.startDate,endDate:dts.endDate,rowLimit:1},token);
+    const r=d.rows?.[0]||{clicks:0,impressions:0,ctr:0,position:0};
+    return {meta:{site,...dts},summary:{clicks:r.clicks||0,impressions:r.impressions||0,ctr:r.ctr||0,position:r.position||0}};
+  }
+  if(name==='gsc_top_queries'){
+    const dts=dateRange(args?.days),limit=Math.max(1,Math.min(Number(args?.limit)||100,1000));
+    const d=await gscPost(site,{startDate:dts.startDate,endDate:dts.endDate,dimensions:['query'],rowLimit:limit},token);
+    return {meta:{site,...dts},rows:(d.rows||[]).map(r=>({query:r.keys?.[0],clicks:r.clicks,impressions:r.impressions,ctr:r.ctr,position:r.position}))};
+  }
+  if(name==='gsc_query'){
+    const q=String(args?.query||'').trim();if(!q)throw new Error('query is required');
+    const dts=dateRange(args?.days),d=await gscPost(site,{startDate:dts.startDate,endDate:dts.endDate,dimensions:['query','page'],dimensionFilterGroups:[{filters:[{dimension:'query',operator:'equals',expression:q}]}],rowLimit:100},token);
+    return {meta:{site,q,...dts},rows:(d.rows||[]).map(r=>({query:r.keys?.[0],page:r.keys?.[1],clicks:r.clicks,impressions:r.impressions,ctr:r.ctr,position:r.position}))};
+  }
+  if(name==='gsc_pages'){
+    const dts=dateRange(args?.days),limit=Math.max(1,Math.min(Number(args?.limit)||100,1000));
+    const d=await gscPost(site,{startDate:dts.startDate,endDate:dts.endDate,dimensions:['page'],rowLimit:limit},token);
+    return {meta:{site,...dts},rows:(d.rows||[]).map(r=>({page:r.keys?.[0],clicks:r.clicks,impressions:r.impressions,ctr:r.ctr,position:r.position}))};
+  }
+  if(name==='gsc_opportunities'){
+    const dts=dateRange(args?.days),minImpressions=Math.max(1,Number(args?.minImpressions)||20);
+    const d=await gscPost(site,{startDate:dts.startDate,endDate:dts.endDate,dimensions:['query'],rowLimit:1000},token);
+    const rows=(d.rows||[]).map(r=>({query:r.keys?.[0],clicks:r.clicks,impressions:r.impressions,ctr:r.ctr,position:r.position}))
+      .filter(r=>r.impressions>=minImpressions&&r.position>=4&&r.position<=20)
+      .sort((a,b)=>b.impressions-a.impressions).slice(0,100);
+    return {meta:{site,...dts,minImpressions},rows};
+  }
+  throw new Error('Unknown tool: '+name);
+}
+
 export default {
  async fetch(req,env){
   const u=new URL(req.url),path=u.pathname;
@@ -220,6 +268,28 @@ export default {
     const d=await gscPost(site,{startDate:dts.startDate,endDate:dts.endDate,dimensions:['query'],rowLimit:limit},token);
     const rows=(d.rows||[]).map(r=>({query:r.keys?.[0],clicks:r.clicks,impressions:r.impressions,ctr:r.ctr,position:r.position}));
     return json({meta:{site,...dts},rows});
+   }
+   if(path==='/mcp'){
+    if(req.method==='OPTIONS')return new Response(null,{status:204,headers:{'access-control-allow-origin':'*','access-control-allow-methods':'POST,OPTIONS','access-control-allow-headers':'authorization,content-type,mcp-protocol-version'}});
+    if(req.method!=='POST')return new Response('Method not allowed',{status:405,headers:{allow:'POST, OPTIONS'}});
+    if(!env.GOOGLE_REFRESH_TOKEN)return json({error:'Server connection is not configured.'},503);
+    if(!env.BRIDGE_READ_KEY)return json({error:'MCP read access is not configured.'},503);
+    if(!readKeyOk(req,env,u))return new Response(JSON.stringify({jsonrpc:'2.0',id:null,error:{code:-32001,message:'Unauthorized'}}),{status:401,headers:{'content-type':'application/json; charset=utf-8','www-authenticate':'Bearer'}});
+    let body;try{body=await req.json()}catch{return mcpError(null,-32700,'Parse error')}
+    if(Array.isArray(body))return mcpError(null,-32600,'Batch requests are not supported');
+    const id=body?.id??null,method=body?.method,params=body?.params||{};
+    if(method==='initialize'){
+      return mcpResult(id,{protocolVersion:params.protocolVersion||'2025-06-18',capabilities:{tools:{listChanged:false}},serverInfo:{name:'berryman-gsc-bridge',version:'1.0.0'},instructions:'Read-only Google Search Console tools for Berryman Electrical. Use these tools to inspect real GSC performance, queries, pages and SEO opportunities. GSC average position is aggregated visibility, not an exact live local rank.'});
+    }
+    if(method==='notifications/initialized')return new Response(null,{status:202});
+    if(method==='ping')return mcpResult(id,{});
+    if(method==='tools/list')return mcpResult(id,{tools:MCP_TOOLS});
+    if(method==='tools/call'){
+      const name=params?.name,args=params?.arguments||{};
+      try{return mcpResult(id,mcpToolPayload(await mcpCallTool(name,args,env)))}
+      catch(e){return mcpResult(id,{content:[{type:'text',text:e.message||String(e)}],isError:true})}
+    }
+    return mcpError(id,-32601,'Method not found');
    }
    if(path.startsWith('/api/ai/')){
     if(!env.GOOGLE_REFRESH_TOKEN)return json({error:'Server connection is not configured. Add GOOGLE_REFRESH_TOKEN as a Worker runtime secret.'},503);
