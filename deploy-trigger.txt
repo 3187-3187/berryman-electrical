@@ -1,1 +1,1 @@
-Trigger Cloudflare build for Google OAuth MCP auth
+Trigger Cloudflare build for mixed-auth MCP discovery
