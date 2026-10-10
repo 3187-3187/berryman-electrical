@@ -1,1 +1,1 @@
-Trigger Cloudflare build for GSC custom domain
+Trigger Cloudflare build for GSC MCP endpoint
