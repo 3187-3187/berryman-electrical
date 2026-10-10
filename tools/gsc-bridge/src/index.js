@@ -20,7 +20,7 @@ table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;p
 <div class="card">
 <h2>1. Google connection</h2><div id="status">Checking…</div>
 <p><a class="button" href="/api/oauth-start">Connect Google Search Console</a>
-<button class="secondary" onclick="logout()">Disconnect</button></p>
+<button class="secondary" onclick="logout()">Disconnect browser</button></p>
 </div>
 
 <div class="card">
@@ -36,6 +36,13 @@ table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;p
 <button onclick="runTop()">Load top 50 queries</button><div id="topOut"></div>
 </div>
 
+<div class="card">
+<h2>4. Server handoff</h2>
+<p class="muted">Promote the working browser connection to a server connection so the bridge can run without this phone/browser. The refresh token is sensitive; copy it straight into Cloudflare as the runtime secret <code>GOOGLE_REFRESH_TOKEN</code> and do not send it in chat.</p>
+<button onclick="exportRefresh()">Show refresh token</button>
+<div id="handoffOut"></div>
+</div>
+
 <script>
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 async function j(url){const r=await fetch(url);const t=await r.text();let d;try{d=JSON.parse(t)}catch{d={error:t}};if(!r.ok)throw new Error(d.error||r.statusText);return d}
@@ -44,7 +51,9 @@ async function init(){
   const s=await j('/api/status');
   document.getElementById('status').innerHTML=
    '<div>Google OAuth configured: <b class="'+(s.googleConfigured?'ok':'bad')+'">'+(s.googleConfigured?'yes':'no')+'</b></div>'+
-   '<div>Browser connected: <b class="'+(s.connected?'ok':'bad')+'">'+(s.connected?'yes':'no')+'</b></div>'+
+   '<div>Browser connected: <b class="'+(s.browserConnected?'ok':'bad')+'">'+(s.browserConnected?'yes':'no')+'</b></div>'+
+   '<div>Server connected: <b class="'+(s.serverConnected?'ok':'bad')+'">'+(s.serverConnected?'yes':'no')+'</b></div>'+
+   '<div>ChatGPT read API configured: <b class="'+(s.aiReadConfigured?'ok':'bad')+'">'+(s.aiReadConfigured?'yes':'no')+'</b></div>'+
    '<div>OAuth callback: <code>'+esc(s.callbackUrl)+'</code></div>';
   if(s.connected){
    const d=await j('/api/sites'),sel=document.getElementById('site');sel.innerHTML='';
@@ -74,6 +83,15 @@ async function runTop(){
    '<table><thead><tr><th>Query</th><th>Clicks</th><th>Impr.</th><th>CTR</th><th>Avg position</th></tr></thead><tbody>'+
    (d.rows||[]).map(r=>'<tr><td>'+esc(r.query)+'</td><td>'+r.clicks+'</td><td>'+r.impressions+'</td><td>'+((r.ctr||0)*100).toFixed(1)+'%</td><td><b>'+Number(r.position).toFixed(1)+'</b></td></tr>').join('')+
    '</tbody></table>';
+ }catch(e){out.innerHTML='<p class="bad">'+esc(e.message)+'</p>'}
+}
+async function exportRefresh(){
+ const out=document.getElementById('handoffOut');out.innerHTML='<p>Loading…</p>';
+ try{
+  const r=await fetch('/api/export-refresh-token',{method:'POST'});
+  const t=await r.text();let d;try{d=JSON.parse(t)}catch{d={error:t}};
+  if(!r.ok)throw new Error(d.error||r.statusText);
+  out.innerHTML='<p><b>Sensitive:</b> copy this directly into Cloudflare as <code>GOOGLE_REFRESH_TOKEN</code>, then remove it from view by refreshing this page.</p><pre>'+esc(d.refreshToken)+'</pre>';
  }catch(e){out.innerHTML='<p class="bad">'+esc(e.message)+'</p>'}
 }
 async function logout(){await fetch('/api/logout');location.reload()} init();
@@ -110,8 +128,21 @@ function cookies(req){
 function json(data,status=200,headers={}){return new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8',...headers}})}
 function callbackUrl(req){return new URL('/api/oauth-callback',req.url).toString()}
 function configured(env){return Boolean(env.GOOGLE_CLIENT_ID&&env.GOOGLE_CLIENT_SECRET&&env.SESSION_SECRET)}
+function serverConnected(env){return Boolean(env.GOOGLE_REFRESH_TOKEN)}
+function aiReadConfigured(env){return Boolean(configured(env)&&env.GOOGLE_REFRESH_TOKEN&&env.BRIDGE_READ_KEY)}
+function readKeyOk(req,env,u){
+  if(!env.BRIDGE_READ_KEY)return false;
+  const auth=req.headers.get('authorization')||'';
+  const bearer=auth.startsWith('Bearer ')?auth.slice(7):'';
+  const query=u.searchParams.get('key')||'';
+  return bearer===env.BRIDGE_READ_KEY||query===env.BRIDGE_READ_KEY;
+}
 async function session(req,env){
   const t=cookies(req).gsc_session;if(!t||!env.SESSION_SECRET)return null;return unseal(t,env.SESSION_SECRET);
+}
+async function refreshTokenFor(req,env){
+  if(env.GOOGLE_REFRESH_TOKEN)return env.GOOGLE_REFRESH_TOKEN;
+  const s=await session(req,env);return s?.refresh_token||null;
 }
 async function getAccessToken(refreshToken,env){
   const body=new URLSearchParams({client_id:env.GOOGLE_CLIENT_ID,client_secret:env.GOOGLE_CLIENT_SECRET,refresh_token:refreshToken,grant_type:'refresh_token'});
@@ -135,7 +166,15 @@ export default {
   try{
    if(path==='/')return new Response(html,{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store'}});
    if(path==='/api/status'){
-    const s=await session(req,env);return json({googleConfigured:configured(env),connected:Boolean(s?.refresh_token),callbackUrl:callbackUrl(req)});
+    const s=await session(req,env);
+    return json({
+      googleConfigured:configured(env),
+      connected:Boolean(s?.refresh_token||env.GOOGLE_REFRESH_TOKEN),
+      browserConnected:Boolean(s?.refresh_token),
+      serverConnected:serverConnected(env),
+      aiReadConfigured:aiReadConfigured(env),
+      callbackUrl:callbackUrl(req)
+    });
    }
    if(path==='/api/oauth-start'){
     if(!configured(env))return new Response('Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET and SESSION_SECRET in Worker secrets first.',{status:503});
@@ -155,27 +194,81 @@ export default {
     return new Response(null,{status:302,headers:{location:'/?connected=1','set-cookie':'gsc_session='+encodeURIComponent(token)+'; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=7776000'}});
    }
    if(path==='/api/logout')return json({ok:true},200,{'set-cookie':'gsc_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0'});
+   if(path==='/api/export-refresh-token'){
+    if(req.method!=='POST')return json({error:'POST required'},405,{'cache-control':'no-store'});
+    const s=await session(req,env);if(!s?.refresh_token)return json({error:'Browser connection is required to export the refresh token.'},401,{'cache-control':'no-store'});
+    return json({refreshToken:s.refresh_token},200,{'cache-control':'no-store'});
+   }
    if(path==='/api/sites'){
-    const s=await session(req,env);if(!s?.refresh_token)return json({error:'Connect Google Search Console first.'},401);
-    const token=await getAccessToken(s.refresh_token,env),r=await fetch('https://www.googleapis.com/webmasters/v3/sites',{headers:{authorization:'Bearer '+token}});
+    const refreshToken=await refreshTokenFor(req,env);if(!refreshToken)return json({error:'Connect Google Search Console first.'},401);
+    const token=await getAccessToken(refreshToken,env),r=await fetch('https://www.googleapis.com/webmasters/v3/sites',{headers:{authorization:'Bearer '+token}});
     const d=await r.json();if(!r.ok)throw new Error(d.error?.message||'Unable to list Search Console properties');return json(d);
    }
    if(path==='/api/query'){
     const site=u.searchParams.get('site'),q=u.searchParams.get('q');if(!site||!q)return json({error:'site and q are required'},400);
-    const s=await session(req,env);if(!s?.refresh_token)return json({error:'Connect Google Search Console first.'},401);
-    const token=await getAccessToken(s.refresh_token,env),dts=dateRange(u.searchParams.get('days'));
+    const refreshToken=await refreshTokenFor(req,env);if(!refreshToken)return json({error:'Connect Google Search Console first.'},401);
+    const token=await getAccessToken(refreshToken,env),dts=dateRange(u.searchParams.get('days'));
     const d=await gscPost(site,{startDate:dts.startDate,endDate:dts.endDate,dimensions:['query','page'],dimensionFilterGroups:[{filters:[{dimension:'query',operator:'equals',expression:q}]}],rowLimit:100},token);
     const rows=(d.rows||[]).map(r=>({query:r.keys?.[0],page:r.keys?.[1],clicks:r.clicks,impressions:r.impressions,ctr:r.ctr,position:r.position}));
     return json({meta:{site,q,...dts},rows});
    }
    if(path==='/api/queries'){
     const site=u.searchParams.get('site');if(!site)return json({error:'site is required'},400);
-    const limit=Math.max(1,Math.min(Number(u.searchParams.get('limit'))||50,1000)),s=await session(req,env);
-    if(!s?.refresh_token)return json({error:'Connect Google Search Console first.'},401);
-    const token=await getAccessToken(s.refresh_token,env),dts=dateRange(u.searchParams.get('days'));
+    const limit=Math.max(1,Math.min(Number(u.searchParams.get('limit'))||50,1000)),refreshToken=await refreshTokenFor(req,env);
+    if(!refreshToken)return json({error:'Connect Google Search Console first.'},401);
+    const token=await getAccessToken(refreshToken,env),dts=dateRange(u.searchParams.get('days'));
     const d=await gscPost(site,{startDate:dts.startDate,endDate:dts.endDate,dimensions:['query'],rowLimit:limit},token);
     const rows=(d.rows||[]).map(r=>({query:r.keys?.[0],clicks:r.clicks,impressions:r.impressions,ctr:r.ctr,position:r.position}));
     return json({meta:{site,...dts},rows});
+   }
+   if(path.startsWith('/api/ai/')){
+    if(!env.GOOGLE_REFRESH_TOKEN)return json({error:'Server connection is not configured. Add GOOGLE_REFRESH_TOKEN as a Worker runtime secret.'},503);
+    if(!env.BRIDGE_READ_KEY)return json({error:'ChatGPT read access is not configured. Add BRIDGE_READ_KEY as a Worker runtime secret.'},503);
+    if(!readKeyOk(req,env,u))return json({error:'Unauthorized'},401);
+    const refreshToken=env.GOOGLE_REFRESH_TOKEN,token=await getAccessToken(refreshToken,env);
+    const defaultSite='sc-domain:berrymanelectrical.com.au';
+    if(path==='/api/ai/status')return json({ok:true,site:defaultSite,serverConnected:true,readOnly:true});
+    if(path==='/api/ai/sites'){
+      const r=await fetch('https://www.googleapis.com/webmasters/v3/sites',{headers:{authorization:'Bearer '+token}});
+      const d=await r.json();if(!r.ok)throw new Error(d.error?.message||'Unable to list Search Console properties');return json(d);
+    }
+    if(path==='/api/ai/summary'){
+      const site=u.searchParams.get('site')||defaultSite,dts=dateRange(u.searchParams.get('days'));
+      const d=await gscPost(site,{startDate:dts.startDate,endDate:dts.endDate,rowLimit:1},token);
+      const r=d.rows?.[0]||{clicks:0,impressions:0,ctr:0,position:0};
+      return json({meta:{site,...dts},summary:{clicks:r.clicks||0,impressions:r.impressions||0,ctr:r.ctr||0,position:r.position||0}});
+    }
+    if(path==='/api/ai/queries'){
+      const site=u.searchParams.get('site')||defaultSite,dts=dateRange(u.searchParams.get('days'));
+      const limit=Math.max(1,Math.min(Number(u.searchParams.get('limit'))||100,1000));
+      const d=await gscPost(site,{startDate:dts.startDate,endDate:dts.endDate,dimensions:['query'],rowLimit:limit},token);
+      const rows=(d.rows||[]).map(r=>({query:r.keys?.[0],clicks:r.clicks,impressions:r.impressions,ctr:r.ctr,position:r.position}));
+      return json({meta:{site,...dts},rows});
+    }
+    if(path==='/api/ai/query'){
+      const site=u.searchParams.get('site')||defaultSite,q=u.searchParams.get('q');if(!q)return json({error:'q is required'},400);
+      const dts=dateRange(u.searchParams.get('days'));
+      const d=await gscPost(site,{startDate:dts.startDate,endDate:dts.endDate,dimensions:['query','page'],dimensionFilterGroups:[{filters:[{dimension:'query',operator:'equals',expression:q}]}],rowLimit:100},token);
+      const rows=(d.rows||[]).map(r=>({query:r.keys?.[0],page:r.keys?.[1],clicks:r.clicks,impressions:r.impressions,ctr:r.ctr,position:r.position}));
+      return json({meta:{site,q,...dts},rows});
+    }
+    if(path==='/api/ai/pages'){
+      const site=u.searchParams.get('site')||defaultSite,dts=dateRange(u.searchParams.get('days'));
+      const limit=Math.max(1,Math.min(Number(u.searchParams.get('limit'))||100,1000));
+      const d=await gscPost(site,{startDate:dts.startDate,endDate:dts.endDate,dimensions:['page'],rowLimit:limit},token);
+      const rows=(d.rows||[]).map(r=>({page:r.keys?.[0],clicks:r.clicks,impressions:r.impressions,ctr:r.ctr,position:r.position}));
+      return json({meta:{site,...dts},rows});
+    }
+    if(path==='/api/ai/opportunities'){
+      const site=u.searchParams.get('site')||defaultSite,dts=dateRange(u.searchParams.get('days'));
+      const d=await gscPost(site,{startDate:dts.startDate,endDate:dts.endDate,dimensions:['query'],rowLimit:1000},token);
+      const minImpressions=Math.max(1,Number(u.searchParams.get('minImpressions'))||20);
+      const rows=(d.rows||[]).map(r=>({query:r.keys?.[0],clicks:r.clicks,impressions:r.impressions,ctr:r.ctr,position:r.position}))
+        .filter(r=>r.impressions>=minImpressions&&r.position>=4&&r.position<=20)
+        .sort((a,b)=>b.impressions-a.impressions).slice(0,100);
+      return json({meta:{site,...dts,minImpressions},rows});
+    }
+    return json({error:'Unknown AI endpoint'},404);
    }
    return json({error:'Not found'},404);
   }catch(e){return json({error:e.message||String(e)},500)}
