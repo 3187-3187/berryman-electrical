@@ -1,1 +1,1 @@
-Trigger Cloudflare build
+Trigger Cloudflare build for GSC custom domain
