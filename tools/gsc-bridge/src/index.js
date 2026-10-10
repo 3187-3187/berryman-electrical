@@ -279,6 +279,14 @@ export default {
     const rows=(d.rows||[]).map(r=>({query:r.keys?.[0],clicks:r.clicks,impressions:r.impressions,ctr:r.ctr,position:r.position}));
     return json({meta:{site,...dts},rows});
    }
+   if(path==='/.well-known/oauth-protected-resource'){
+    const origin=u.origin;
+    return json({
+      resource:origin+'/mcp',
+      authorization_servers:['https://accounts.google.com'],
+      scopes_supported:['https://www.googleapis.com/auth/webmasters.readonly']
+    },200,{'cache-control':'no-store'});
+   }
    if(path==='/mcp'){
     if(req.method==='OPTIONS')return new Response(null,{status:204,headers:{'access-control-allow-origin':'*','access-control-allow-methods':'POST,OPTIONS','access-control-allow-headers':'authorization,content-type,mcp-protocol-version'}});
     if(req.method!=='POST')return new Response('Method not allowed',{status:405,headers:{allow:'POST, OPTIONS'}});
@@ -299,7 +307,7 @@ export default {
       if(!(await googleMcpAuth(req,env))){
         return mcpResult(id,{
           content:[{type:'text',text:'Authentication required: connect Google Search Console read-only access.'}],
-          _meta:{'mcp/www_authenticate':['Bearer error="insufficient_scope", error_description="Google Search Console read-only authorization is required"']},
+          _meta:{'mcp/www_authenticate':['Bearer resource_metadata="'+u.origin+'/.well-known/oauth-protected-resource", error="insufficient_scope", error_description="Google Search Console read-only authorization is required"']},
           isError:true
         });
       }
