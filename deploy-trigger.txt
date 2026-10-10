@@ -1,1 +1,1 @@
-Trigger Cloudflare build for GSC MCP endpoint
+Trigger Cloudflare build for Google OAuth MCP auth
