@@ -300,18 +300,22 @@ export default {
     if(method==='notifications/initialized')return new Response(null,{status:202});
     if(method==='ping')return mcpResult(id,{});
     if(method==='tools/list'){
-      const securitySchemes=[{type:'oauth2',scopes:['https://www.googleapis.com/auth/webmasters.readonly']}];
-      return mcpResult(id,{tools:MCP_TOOLS.map(t=>({...t,securitySchemes,_meta:{...(t._meta||{}),securitySchemes}}))});
+      const oauth=[{type:'oauth2',scopes:['https://www.googleapis.com/auth/webmasters.readonly']}];
+      const noauth=[{type:'noauth'}];
+      return mcpResult(id,{tools:MCP_TOOLS.map(t=>{
+        const securitySchemes=t.name==='gsc_status'?noauth:oauth;
+        return {...t,securitySchemes,_meta:{...(t._meta||{}),securitySchemes}};
+      })});
     }
     if(method==='tools/call'){
-      if(!(await googleMcpAuth(req,env))){
+      const name=params?.name,args=params?.arguments||{};
+      if(name!=='gsc_status' && !(await googleMcpAuth(req,env))){
         return mcpResult(id,{
           content:[{type:'text',text:'Authentication required: connect Google Search Console read-only access.'}],
           _meta:{'mcp/www_authenticate':['Bearer resource_metadata="'+u.origin+'/.well-known/oauth-protected-resource", error="insufficient_scope", error_description="Google Search Console read-only authorization is required"']},
           isError:true
         });
       }
-      const name=params?.name,args=params?.arguments||{};
       try{return mcpResult(id,mcpToolPayload(await mcpCallTool(name,args,env)))}
       catch(e){return mcpResult(id,{content:[{type:'text',text:e.message||String(e)}],isError:true})}
     }
