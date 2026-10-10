@@ -283,17 +283,26 @@ export default {
     if(req.method==='OPTIONS')return new Response(null,{status:204,headers:{'access-control-allow-origin':'*','access-control-allow-methods':'POST,OPTIONS','access-control-allow-headers':'authorization,content-type,mcp-protocol-version'}});
     if(req.method!=='POST')return new Response('Method not allowed',{status:405,headers:{allow:'POST, OPTIONS'}});
     if(!env.GOOGLE_REFRESH_TOKEN)return json({error:'Server connection is not configured.'},503);
-    if(!(await googleMcpAuth(req,env)))return new Response(JSON.stringify({jsonrpc:'2.0',id:null,error:{code:-32001,message:'Google OAuth authentication required'}}),{status:401,headers:{'content-type':'application/json; charset=utf-8','www-authenticate':'Bearer'}});
     let body;try{body=await req.json()}catch{return mcpError(null,-32700,'Parse error')}
     if(Array.isArray(body))return mcpError(null,-32600,'Batch requests are not supported');
     const id=body?.id??null,method=body?.method,params=body?.params||{};
     if(method==='initialize'){
-      return mcpResult(id,{protocolVersion:params.protocolVersion||'2025-06-18',capabilities:{tools:{listChanged:false}},serverInfo:{name:'berryman-gsc-bridge',version:'1.0.0'},instructions:'Read-only Google Search Console tools for Berryman Electrical. Use these tools to inspect real GSC performance, queries, pages and SEO opportunities. GSC average position is aggregated visibility, not an exact live local rank.'});
+      return mcpResult(id,{protocolVersion:params.protocolVersion||'2025-06-18',capabilities:{tools:{listChanged:false}},serverInfo:{name:'berryman-gsc-bridge',version:'1.1.0'},instructions:'Read-only Google Search Console tools for Berryman Electrical. Tool discovery is public; every data tool requires Google OAuth with Search Console read-only scope.'});
     }
     if(method==='notifications/initialized')return new Response(null,{status:202});
     if(method==='ping')return mcpResult(id,{});
-    if(method==='tools/list')return mcpResult(id,{tools:MCP_TOOLS});
+    if(method==='tools/list'){
+      const securitySchemes=[{type:'oauth2',scopes:['https://www.googleapis.com/auth/webmasters.readonly']}];
+      return mcpResult(id,{tools:MCP_TOOLS.map(t=>({...t,securitySchemes,_meta:{...(t._meta||{}),securitySchemes}}))});
+    }
     if(method==='tools/call'){
+      if(!(await googleMcpAuth(req,env))){
+        return mcpResult(id,{
+          content:[{type:'text',text:'Authentication required: connect Google Search Console read-only access.'}],
+          _meta:{'mcp/www_authenticate':['Bearer error="insufficient_scope", error_description="Google Search Console read-only authorization is required"']},
+          isError:true
+        });
+      }
       const name=params?.name,args=params?.arguments||{};
       try{return mcpResult(id,mcpToolPayload(await mcpCallTool(name,args,env)))}
       catch(e){return mcpResult(id,{content:[{type:'text',text:e.message||String(e)}],isError:true})}
