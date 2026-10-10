@@ -64,3 +64,37 @@ Once this proof works, the browser-only session can be replaced with a server-si
 - URL inspection
 
 That is the point where ChatGPT can pull the data itself instead of relying on screenshots.
+
+
+## Server-side handoff and ChatGPT read API
+
+The browser OAuth proof can be promoted to a server connection so the bridge no longer depends on one browser cookie.
+
+After the browser is connected:
+
+1. Open the bridge and use **Show refresh token** in the **Server handoff** card.
+2. Copy that value directly into Cloudflare Worker runtime secrets as:
+   - `GOOGLE_REFRESH_TOKEN`
+3. Create a separate long random read-only key and add it as:
+   - `BRIDGE_READ_KEY`
+
+Do not put either value in GitHub.
+
+When both are present, the bridge status shows:
+- Server connected: yes
+- ChatGPT read API configured: yes
+
+Read-only endpoints:
+- `/api/ai/status`
+- `/api/ai/sites`
+- `/api/ai/summary?days=28`
+- `/api/ai/queries?days=28&limit=100`
+- `/api/ai/query?q=electrician%20byron%20bay&days=28`
+- `/api/ai/pages?days=28&limit=100`
+- `/api/ai/opportunities?days=28&minImpressions=20`
+
+Authentication accepts either:
+- `Authorization: Bearer <BRIDGE_READ_KEY>`
+- `?key=<BRIDGE_READ_KEY>` for clients that cannot send custom headers.
+
+The AI endpoints are read-only and default to `sc-domain:berrymanelectrical.com.au`.
