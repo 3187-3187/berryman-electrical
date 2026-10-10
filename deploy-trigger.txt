@@ -1,1 +1,1 @@
-Trigger Cloudflare build for OAuth resource metadata
+Trigger Cloudflare build for mixed-auth status tool
