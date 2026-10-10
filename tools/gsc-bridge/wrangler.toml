@@ -1,0 +1,4 @@
+name = "berryman-gsc-bridge"
+main = "src/index.js"
+compatibility_date = "2026-10-10"
+workers_dev = true
