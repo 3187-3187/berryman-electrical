@@ -137,15 +137,26 @@ function readKeyOk(req,env,u){
   const query=u.searchParams.get('key')||'';
   return bearer===env.BRIDGE_READ_KEY||query===env.BRIDGE_READ_KEY;
 }
-async function googleMcpAuth(req,env){
+function mcpResource(req){return new URL(req.url).origin+'/mcp'}
+function mcpIssuer(req){return new URL(req.url).origin}
+function safeChatGptRedirect(uri){
+  try{
+    const x=new URL(uri);
+    return x.protocol==='https:' && x.hostname==='chatgpt.com' && (x.pathname.startsWith('/connector/oauth/') || x.pathname==='/connector_platform_oauth_redirect');
+  }catch{return false}
+}
+function htmlEsc(s){return String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
+function oauthForm(fields,error=''){
+  const hidden=Object.entries(fields).map(([k,v])=>'<input type="hidden" name="'+htmlEsc(k)+'" value="'+htmlEsc(v)+'">').join('');
+  return '<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Authorize Berryman GSC</title><style>body{font-family:system-ui;max-width:560px;margin:48px auto;padding:0 20px;color:#171717}input{width:100%;box-sizing:border-box;padding:12px;border:1px solid #bbb;border-radius:8px}button{margin-top:18px;background:#111;color:#fff;border:0;border-radius:9px;padding:12px 16px;font-weight:700}.err{color:#a51d1d}.muted{color:#666}</style></head><body><h1>Authorize Berryman GSC</h1><p class="muted">This grants your ChatGPT plugin read-only access to the Search Console bridge already connected to Google.</p>'+(error?'<p class="err">'+htmlEsc(error)+'</p>':'')+'<form method="post" action="/oauth/authorize">'+hidden+'<p><label>Bridge access key</label></p><input type="password" name="access_key" required autocomplete="current-password"><button type="submit">Authorize ChatGPT</button></form></body></html>';
+}
+async function mcpAuth(req,env){
   const auth=req.headers.get('authorization')||'';
-  if(!auth.startsWith('Bearer '))return false;
-  const token=auth.slice(7).trim();if(!token)return false;
-  const r=await fetch('https://oauth2.googleapis.com/tokeninfo?access_token='+encodeURIComponent(token));
-  if(!r.ok)return false;
-  const d=await r.json();
-  const scopes=String(d.scope||'').split(/\s+/);
-  return d.aud===env.GOOGLE_CLIENT_ID && scopes.includes('https://www.googleapis.com/auth/webmasters.readonly');
+  if(!auth.startsWith('Bearer '))return null;
+  const p=await unseal(auth.slice(7).trim(),env.SESSION_SECRET);
+  if(!p||p.typ!=='mcp_access'||p.aud!==mcpResource(req)||!p.exp||Date.now()>p.exp*1000)return null;
+  if(!String(p.scope||'').split(/\s+/).includes('gsc.read'))return null;
+  return p;
 }
 async function session(req,env){
   const t=cookies(req).gsc_session;if(!t||!env.SESSION_SECRET)return null;return unseal(t,env.SESSION_SECRET);
@@ -237,7 +248,7 @@ export default {
    if(path==='/api/oauth-start'){
     if(!configured(env))return new Response('Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET and SESSION_SECRET in Worker secrets first.',{status:503});
     const state=b64url(crypto.getRandomValues(new Uint8Array(24)));
-    const p=new URLSearchParams({client_id:env.GOOGLE_CLIENT_ID,redirect_uri:callbackUrl(req),response_type:'code',scope:'https://www.googleapis.com/auth/webmasters.readonly',access_type:'offline',prompt:'consent',include_granted_scopes:'true',state});
+    const p=new URLSearchParams({client_id:env.GOOGLE_CLIENT_ID,redirect_uri:callbackUrl(req),response_type:'code',scope:'gsc.read',access_type:'offline',prompt:'consent',include_granted_scopes:'true',state});
     return new Response(null,{status:302,headers:{location:'https://accounts.google.com/o/oauth2/v2/auth?'+p,'set-cookie':'oauth_state='+state+'; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600'}});
    }
    if(path==='/api/oauth-callback'){
@@ -283,9 +294,91 @@ export default {
     const origin=u.origin;
     return json({
       resource:origin+'/mcp',
-      authorization_servers:['https://accounts.google.com'],
-      scopes_supported:['https://www.googleapis.com/auth/webmasters.readonly']
+      authorization_servers:[origin],
+      scopes_supported:['gsc.read'],
+      resource_documentation:origin+'/'
     },200,{'cache-control':'no-store'});
+   }
+   if(path==='/.well-known/oauth-authorization-server'){
+    const origin=u.origin;
+    return json({
+      issuer:origin,
+      authorization_endpoint:origin+'/oauth/authorize',
+      token_endpoint:origin+'/oauth/token',
+      registration_endpoint:origin+'/oauth/register',
+      response_types_supported:['code'],
+      grant_types_supported:['authorization_code','refresh_token'],
+      code_challenge_methods_supported:['S256'],
+      token_endpoint_auth_methods_supported:['none'],
+      scopes_supported:['gsc.read']
+    },200,{'cache-control':'no-store'});
+   }
+   if(path==='/oauth/register'){
+    if(req.method!=='POST')return json({error:'invalid_request'},405,{'cache-control':'no-store'});
+    let body={};try{body=await req.json()}catch{return json({error:'invalid_client_metadata'},400,{'cache-control':'no-store'})}
+    const redirect_uris=Array.isArray(body.redirect_uris)?body.redirect_uris:[];
+    if(!redirect_uris.length||!redirect_uris.every(safeChatGptRedirect))return json({error:'invalid_redirect_uri'},400,{'cache-control':'no-store'});
+    const client_id=await seal({typ:'mcp_client',redirect_uris,iat:Math.floor(Date.now()/1000)},env.SESSION_SECRET);
+    return json({
+      client_id,
+      client_id_issued_at:Math.floor(Date.now()/1000),
+      redirect_uris,
+      grant_types:['authorization_code','refresh_token'],
+      response_types:['code'],
+      token_endpoint_auth_method:'none'
+    },201,{'cache-control':'no-store'});
+   }
+   if(path==='/oauth/authorize'){
+    if(req.method==='GET'){
+      const p=Object.fromEntries(u.searchParams.entries());
+      const client=await unseal(p.client_id||'',env.SESSION_SECRET);
+      if(!client||client.typ!=='mcp_client')return new Response('Invalid OAuth client',{status:400});
+      if(p.response_type!=='code')return new Response('Unsupported response type',{status:400});
+      if(!client.redirect_uris.includes(p.redirect_uri)||!safeChatGptRedirect(p.redirect_uri))return new Response('Invalid redirect URI',{status:400});
+      if(!p.code_challenge||p.code_challenge_method!=='S256')return new Response('PKCE S256 required',{status:400});
+      if((p.resource||mcpResource(req))!==mcpResource(req))return new Response('Invalid resource',{status:400});
+      const scope=String(p.scope||'gsc.read').split(/\s+/).filter(Boolean);
+      if(!scope.includes('gsc.read'))return new Response('gsc.read scope required',{status:400});
+      const fields={client_id:p.client_id,redirect_uri:p.redirect_uri,state:p.state||'',code_challenge:p.code_challenge,code_challenge_method:'S256',scope:'gsc.read',resource:mcpResource(req)};
+      return new Response(oauthForm(fields),{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store'}});
+    }
+    if(req.method==='POST'){
+      const form=await req.formData();
+      const client_id=String(form.get('client_id')||''),redirect_uri=String(form.get('redirect_uri')||''),state=String(form.get('state')||'');
+      const code_challenge=String(form.get('code_challenge')||''),resource=String(form.get('resource')||'');
+      const client=await unseal(client_id,env.SESSION_SECRET);
+      const fields={client_id,redirect_uri,state,code_challenge,code_challenge_method:'S256',scope:'gsc.read',resource};
+      if(!client||client.typ!=='mcp_client'||!client.redirect_uris.includes(redirect_uri)||!safeChatGptRedirect(redirect_uri)||!code_challenge||resource!==mcpResource(req))return new Response('Invalid authorization request',{status:400});
+      if(String(form.get('access_key')||'')!==String(env.BRIDGE_READ_KEY||''))return new Response(oauthForm(fields,'That bridge access key is not correct.'),{status:401,headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store'}});
+      const code=await seal({typ:'mcp_code',client_id,redirect_uri,code_challenge,scope:'gsc.read',aud:resource,exp:Math.floor(Date.now()/1000)+300},env.SESSION_SECRET);
+      const dest=new URL(redirect_uri);dest.searchParams.set('code',code);if(state)dest.searchParams.set('state',state);dest.searchParams.set('iss',mcpIssuer(req));
+      return new Response(null,{status:302,headers:{location:dest.toString(),'cache-control':'no-store'}});
+    }
+    return new Response('Method not allowed',{status:405});
+   }
+   if(path==='/oauth/token'){
+    if(req.method!=='POST')return json({error:'invalid_request'},405,{'cache-control':'no-store'});
+    const form=await req.formData(),grant_type=String(form.get('grant_type')||''),client_id=String(form.get('client_id')||'');
+    const client=await unseal(client_id,env.SESSION_SECRET);
+    if(!client||client.typ!=='mcp_client')return json({error:'invalid_client'},401,{'cache-control':'no-store'});
+    const now=Math.floor(Date.now()/1000),aud=mcpResource(req);
+    if(grant_type==='authorization_code'){
+      const code=await unseal(String(form.get('code')||''),env.SESSION_SECRET);
+      const redirect_uri=String(form.get('redirect_uri')||''),verifier=String(form.get('code_verifier')||''),resource=String(form.get('resource')||aud);
+      if(!code||code.typ!=='mcp_code'||code.client_id!==client_id||code.redirect_uri!==redirect_uri||code.aud!==aud||resource!==aud||Date.now()>code.exp*1000)return json({error:'invalid_grant'},400,{'cache-control':'no-store'});
+      const digest=new Uint8Array(await crypto.subtle.digest('SHA-256',enc.encode(verifier)));
+      if(b64url(digest)!==code.code_challenge)return json({error:'invalid_grant',error_description:'PKCE verification failed'},400,{'cache-control':'no-store'});
+      const access_token=await seal({typ:'mcp_access',sub:'berryman-owner',scope:'gsc.read',aud,iat:now,exp:now+3600},env.SESSION_SECRET);
+      const refresh_token=await seal({typ:'mcp_refresh',sub:'berryman-owner',scope:'gsc.read',aud,client_id,iat:now,exp:now+2592000},env.SESSION_SECRET);
+      return json({access_token,token_type:'Bearer',expires_in:3600,refresh_token,scope:'gsc.read'},200,{'cache-control':'no-store'});
+    }
+    if(grant_type==='refresh_token'){
+      const rt=await unseal(String(form.get('refresh_token')||''),env.SESSION_SECRET),resource=String(form.get('resource')||aud);
+      if(!rt||rt.typ!=='mcp_refresh'||rt.client_id!==client_id||rt.aud!==aud||resource!==aud||Date.now()>rt.exp*1000)return json({error:'invalid_grant'},400,{'cache-control':'no-store'});
+      const access_token=await seal({typ:'mcp_access',sub:'berryman-owner',scope:'gsc.read',aud,iat:now,exp:now+3600},env.SESSION_SECRET);
+      return json({access_token,token_type:'Bearer',expires_in:3600,scope:'gsc.read'},200,{'cache-control':'no-store'});
+    }
+    return json({error:'unsupported_grant_type'},400,{'cache-control':'no-store'});
    }
    if(path==='/mcp'){
     if(req.method==='OPTIONS')return new Response(null,{status:204,headers:{'access-control-allow-origin':'*','access-control-allow-methods':'POST,OPTIONS','access-control-allow-headers':'authorization,content-type,mcp-protocol-version'}});
@@ -300,7 +393,7 @@ export default {
     if(method==='notifications/initialized')return new Response(null,{status:202});
     if(method==='ping')return mcpResult(id,{});
     if(method==='tools/list'){
-      const oauth=[{type:'oauth2',scopes:['https://www.googleapis.com/auth/webmasters.readonly']}];
+      const oauth=[{type:'oauth2',scopes:['gsc.read']}];
       const noauth=[{type:'noauth'}];
       return mcpResult(id,{tools:MCP_TOOLS.map(t=>{
         const securitySchemes=t.name==='gsc_status'?noauth:oauth;
@@ -309,10 +402,10 @@ export default {
     }
     if(method==='tools/call'){
       const name=params?.name,args=params?.arguments||{};
-      if(name!=='gsc_status' && !(await googleMcpAuth(req,env))){
+      if(name!=='gsc_status' && !(await mcpAuth(req,env))){
         return mcpResult(id,{
           content:[{type:'text',text:'Authentication required: connect Google Search Console read-only access.'}],
-          _meta:{'mcp/www_authenticate':['Bearer resource_metadata="'+u.origin+'/.well-known/oauth-protected-resource", error="insufficient_scope", error_description="Google Search Console read-only authorization is required"']},
+          _meta:{'mcp/www_authenticate':['Bearer resource_metadata="'+u.origin+'/.well-known/oauth-protected-resource", error="insufficient_scope", error_description="Berryman GSC read-only authorization is required"']},
           isError:true
         });
       }
