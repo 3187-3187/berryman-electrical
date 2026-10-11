@@ -1,1 +1,1 @@
-Trigger Cloudflare build for mixed-auth status tool
+Trigger Cloudflare build for Worker OAuth MCP auth server
