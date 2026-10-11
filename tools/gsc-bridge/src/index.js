@@ -248,7 +248,7 @@ export default {
    if(path==='/api/oauth-start'){
     if(!configured(env))return new Response('Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET and SESSION_SECRET in Worker secrets first.',{status:503});
     const state=b64url(crypto.getRandomValues(new Uint8Array(24)));
-    const p=new URLSearchParams({client_id:env.GOOGLE_CLIENT_ID,redirect_uri:callbackUrl(req),response_type:'code',scope:'gsc.read',access_type:'offline',prompt:'consent',include_granted_scopes:'true',state});
+    const p=new URLSearchParams({client_id:env.GOOGLE_CLIENT_ID,redirect_uri:callbackUrl(req),response_type:'code',scope:'https://www.googleapis.com/auth/webmasters.readonly',access_type:'offline',prompt:'consent',include_granted_scopes:'true',state});
     return new Response(null,{status:302,headers:{location:'https://accounts.google.com/o/oauth2/v2/auth?'+p,'set-cookie':'oauth_state='+state+'; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600'}});
    }
    if(path==='/api/oauth-callback'){
