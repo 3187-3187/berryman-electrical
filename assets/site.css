@@ -662,5 +662,7 @@ footer .footGrid{display:grid;grid-template-columns:1.25fr repeat(3,.75fr);gap:3
     min-height:44px;font-size:13px;padding:10px 12px;
     box-shadow:0 6px 20px rgba(7,17,29,.19)
   }
+  /* Opaque quote button prevents page text showing through the floating CTA. */
+  .mobileStickyActions .btnPlanned{background:#fff}
   body.hasStickyActions{padding-bottom:76px}
 }
