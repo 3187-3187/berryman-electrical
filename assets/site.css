@@ -666,3 +666,87 @@ footer .footGrid{display:grid;grid-template-columns:1.25fr repeat(3,.75fr);gap:3
   .mobileStickyActions .btnPlanned{background:#fff}
   body.hasStickyActions{padding-bottom:76px}
 }
+
+
+/* Professional multi-sector homepage hero — genuine project archive, preview only. */
+.homeProfessional header{background:#07111d;border-bottom:1px solid rgba(239,194,65,.25)}
+.homeProfessional header .brand,.homeProfessional header .navlinks{color:#fff}
+.homeProfessional header .brand small{color:#d0b67a}
+.homeProfessional header .brandmark{border:1px solid rgba(239,194,65,.55);border-radius:11px}
+.homeProfessional header .navactions .btn:not(.yellow){color:#fff;border-color:rgba(255,255,255,.35)}
+.homeProfessional header .mobileNavToggle{border:1px solid rgba(239,194,65,.55);color:#fff}
+.proHero{background:#07111d;isolation:isolate}
+.proHero:after{
+  z-index:1;pointer-events:none;mask-image:none;
+  background-image:linear-gradient(120deg,transparent 53%,rgba(239,194,65,.10) 53.06%,transparent 53.12%),
+                   linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+  background-size:100% 100%,82px 100%;
+}
+.proHeroMedia{position:absolute;inset:0;z-index:0;display:grid;grid-template-columns:41% 34% 25%;overflow:hidden}
+.proHeroImage{background-size:cover;background-position:center;min-width:0;filter:saturate(.68) contrast(1.08)}
+.proHeroImageCommercial{background-image:url("photos/commercial-board-person.webp");background-position:center 38%}
+.proHeroImageIndustrial{background-image:url("photos/commercial-controls.webp");background-position:50% 45%}
+.proHeroImageResidential{background-image:url("photos/ev-tesla-garage-wide.webp");background-position:55% 50%}
+.proHeroMedia:after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,#07111d 0%,rgba(7,17,29,.97) 21%,rgba(7,17,29,.89) 42%,rgba(7,17,29,.64) 64%,rgba(7,17,29,.37) 100%),
+             linear-gradient(0deg,rgba(7,17,29,.86),transparent 36%);
+}
+.proHeroMedia:before{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(128deg,transparent 66%,rgba(7,17,29,.38) 66.1%,rgba(7,17,29,.25) 81%,transparent 81.1%);
+}
+.proHeroLayout{position:relative;z-index:2;min-height:590px;display:flex;align-items:center;padding:78px 0 64px}
+.proHeroContent{max-width:815px}
+.proHero .eyebrow{letter-spacing:.14em;font-size:11px}
+.proHero h1{
+  max-width:850px;font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(48px,5.9vw,83px);font-weight:700;
+  line-height:1.035;letter-spacing:-.048em;margin:24px 0 23px;
+  text-wrap:balance;text-shadow:0 2px 22px rgba(0,0,0,.12)
+}
+.proHero h1 span{display:block;color:#efc773}
+.proHeroIntro{max-width:630px;font-size:clamp(17px,1.55vw,21px);line-height:1.48;color:#f4f0e9;margin:0 0 17px}
+.proHeroScope{max-width:650px;font-size:13px;letter-spacing:.01em;color:#c5ced8;margin:0 0 29px}
+.proHeroScope span{color:var(--yellow);padding:0 4px}
+.proHero .heroActions{display:flex;gap:12px}
+.proHero .heroActions .btn{min-height:49px;padding:13px 25px}
+.proHeroSectorBar{position:relative;z-index:3;border-top:1px solid rgba(239,194,65,.26);background:rgba(5,15,26,.79)}
+.proHeroSectorList{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:center;max-width:1180px}
+.proHeroSectorList a{
+  min-height:76px;display:flex;justify-content:center;align-items:center;gap:14px;
+  border-right:1px solid rgba(255,255,255,.14);
+  color:#fff;font-size:15px;font-weight:800;letter-spacing:.015em
+}
+.proHeroSectorList a:first-child{border-left:1px solid rgba(255,255,255,.14)}
+.proHeroSectorList a:hover{background:rgba(239,194,65,.12)}
+.proSectorIcon{color:#efc773;font-size:27px;line-height:1;font-weight:400}
+@media(max-width:980px){
+  .proHeroLayout{min-height:540px;padding:57px 0 53px}
+  .proHeroMedia{grid-template-columns:32% 42% 26%}
+  .proHeroMedia:after{background:linear-gradient(90deg,#07111d 0%,rgba(7,17,29,.96) 26%,rgba(7,17,29,.80) 65%,rgba(7,17,29,.48))}
+  .proHeroContent{max-width:690px}
+  .proHero h1{font-size:clamp(45px,6.9vw,68px)}
+}
+@media(max-width:640px){
+  .homeProfessional header .brand{font-size:14px}
+  .proHeroMedia{display:block}
+  .proHeroImage{display:none}
+  .proHeroImageIndustrial{display:block;position:absolute;inset:0;background-position:55% 35%;filter:saturate(.5) contrast(1.05)}
+  .proHeroMedia:after{background:linear-gradient(90deg,rgba(7,17,29,.94),rgba(7,17,29,.75)),
+                                linear-gradient(0deg,#07111d 0%,transparent 44%)}
+  .proHeroLayout{min-height:0;padding:33px 0 39px}
+  .proHero .eyebrow{font-size:10px;line-height:1.35;letter-spacing:.08em}
+  .proHero h1{
+    font-size:clamp(38px,10.2vw,51px);line-height:1.04;
+    letter-spacing:-.047em;margin:16px 0 18px;max-width:100%
+  }
+  .proHeroIntro{font-size:16px;line-height:1.48;max-width:100%;margin:0 0 12px}
+  .proHeroScope{font-size:12px;line-height:1.65;margin:0 0 8px}
+  .proHero .heroActions{display:none}
+  .proHeroSectorList a{min-height:62px;flex-direction:column;gap:2px;font-size:12px}
+  .proSectorIcon{font-size:22px}
+  .proHeroSectorList a:first-child{border-left:0}
+  .proHeroSectorList a:last-child{border-right:0}
+}
+@media(prefers-reduced-motion:reduce){.proHeroSectorList a{transition:none}}
