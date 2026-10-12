@@ -7,6 +7,8 @@ on:
       - 'areas/electrician-byron-bay/**'
       - 'services/fault-finding-electrical-repairs/**'
       - 'services/switchboard-upgrades/**'
+      - 'services/index.html'
+      - 'contact/**'
       - 'assets/**'
       - '.github/qa/seo-browser-qa.cjs'
       - '.github/workflows/seo-visual-qa.yml'
