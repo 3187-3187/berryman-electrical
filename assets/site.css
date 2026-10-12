@@ -587,3 +587,14 @@ footer .footGrid{display:grid;grid-template-columns:1.25fr repeat(3,.75fr);gap:3
 .evCategoryPage .staticFaq{max-width:920px}
 @media(max-width:980px){.evCategoryPage .evFeatureMedia{grid-template-columns:1fr}.evFeatureMedia img{height:350px}.evFeatureMedia>div{padding:29px}}
 @media(max-width:640px){.evFeatureMedia img{height:250px}.evFeatureMedia>div{padding:25px}.evFeatureMedia h3{font-size:25px}}
+
+
+/* SEO Batch 8 — power lighting and ceiling fan service */
+.powerLightingPage .powerGuidanceGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:27px}
+.powerLightingPage .powerGuidance{border-top:2px solid #d9bd64;padding:20px 4px 5px}
+.powerLightingPage .powerGuidance h3{font-size:21px;letter-spacing:-.02em;margin:0 0 10px;line-height:1.25}
+.powerLightingPage .powerGuidance p{font-size:14px;color:#5f7184;line-height:1.65;margin:0}
+.powerLightingPage .realPhotoGrid{margin-bottom:25px}
+.powerLightingPage .realPhoto figcaption{line-height:1.6}
+.powerLightingPage .scopeAside .kicker{color:#f5d575}
+@media(max-width:640px){.powerLightingPage .powerGuidanceGrid{grid-template-columns:1fr}.powerLightingPage .powerGuidance{padding:17px 0 2px}}
