@@ -9,6 +9,7 @@ const PAGES = [
   ['switchboard-upgrades', '/services/switchboard-upgrades/'],
   ['residential', '/services/residential-electrician/'],
   ['commercial', '/services/commercial-electrician/'],
+  ['ev-charger', '/services/ev-charger-installation/'],
   ['services-hub', '/services/'],
   ['contact', '/contact/'],
   ['service-areas', '/areas/'],
@@ -120,6 +121,27 @@ const browserErrors = [];
         if (/based in Byron Bay|Byron Bay-based/i.test(result.content)) problems.push('Unnecessary business base assertion');
         if (/\$\s*\d+(?:\.\d+)?\s*(?:per hour|\/hr)/i.test(result.content)) problems.push('Unapproved published fixed hourly price');
       }
+      if (name === 'ev-charger') {
+        if ((await page.locator('main h1').innerText()).trim()!=='EV Charger Installation') problems.push('EV owner H1 mismatch');
+        if (await page.locator('main .scopeCard').count()!==6) problems.push('Expected six EV scoping topics');
+        if (await page.locator('main .scopeConsideration').count()!==4) problems.push('Expected four EV enquiry preparation sections');
+        if (await page.locator('main .realPhoto img').count()!==3) problems.push('Expected three EV gallery images');
+        if (await page.locator('main .evFeatureMedia img').count()!==1) problems.push('Expected genuine hero proof photo');
+        if (await page.locator('main .staticFaq details').count()!==7) problems.push('Expected seven EV FAQs');
+        if (await page.locator('main a[href="../../contact/?service=ev"]').count()<3) problems.push('EV enquiry CTAs missing service preselection');
+        const schemaChecks=await page.evaluate(()=>{
+          const scripts=[...document.querySelectorAll('script[type="application/ld+json"]')].map(el=>{try{return JSON.parse(el.textContent)}catch{return null}});
+          const faq=scripts.find(x=>x?.['@type']==='FAQPage');
+          const service=scripts.find(x=>x?.['@type']==='Service');
+          const visible=[...document.querySelectorAll('main .staticFaq details')].map(el=>({name:el.querySelector('summary')?.textContent.trim(),text:el.querySelector('p')?.textContent.trim()}));
+          return {faqs:!!faq&&faq.mainEntity.length===visible.length&&faq.mainEntity.every((q,i)=>q.name===visible[i].name&&q.acceptedAnswer.text===visible[i].text),service:service?.name===document.querySelector('main h1')?.textContent.trim()};
+        });
+        if (!schemaChecks.faqs) problems.push('EV FAQ schema/content mismatch');
+        if (!schemaChecks.service) problems.push('EV service schema/H1 mismatch');
+        const t=await page.locator('main').innerText();
+        if (/Byron Bay-based|based in Byron Bay/i.test(t)) problems.push('Unnecessary business base repetition');
+        if (/\$\s*\d+\s*(?:fixed|installed|installation|total)/i.test(t)) problems.push('Unapproved fixed charger installation price');
+      }
       if (name === 'services-hub') {
         if (await page.locator('main .hubServiceCard').count() !== 8) problems.push('Expected eight service cards');
         if (await page.locator('main a[href="emergency-electrician/"]').count()) problems.push('Linked to unpublished emergency service page');
@@ -137,7 +159,7 @@ const browserErrors = [];
           if (invalid) problems.push('Empty form should be invalid');
           if (!await page.locator('main').innerText().then(t => t.includes('does not submit enquiries to a server'))) problems.push('Missing transparent mailto disclosure');
           if (view === 'desktop') {
-            for (const [service,expected] of [['switchboard','Switchboard assessment'],['residential','Residential electrical work'],['commercial','Commercial electrical work']]) {
+            for (const [service,expected] of [['switchboard','Switchboard assessment'],['residential','Residential electrical work'],['commercial','Commercial electrical work'],['ev','EV charger installation']]) {
               await page.goto(BASE + '/contact/?service='+service, {waitUntil:'networkidle'});
               if (await form.locator('select[name="job_type"]').inputValue() !== expected) problems.push('Service preselect failed: '+service);
             }
