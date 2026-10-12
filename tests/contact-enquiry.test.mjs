@@ -91,3 +91,58 @@ test('does not expose a GET submission interface',async()=>{
   const result=await json(onRequestGet());
   assert.equal(result.status,405);
 });
+
+
+const photo={filename:'switchboard.jpg',content:Buffer.from([255,216,255,224,0,16,74,70,73,70,0]).toString('base64')};
+const pdf={filename:'plan.pdf',content:Buffer.from('%PDF-1.7\\nExample file').toString('base64')};
+test('includes permitted photos and PDFs as Resend attachments',async()=>{
+  const before=globalThis.fetch;
+  let sent;
+  globalThis.fetch=async(url,opts)=>{
+    if(String(url).includes('siteverify'))return Response.json({success:true,hostname:'preview.example.com'});
+    if(String(url).includes('api.resend.com/emails')){
+      sent=JSON.parse(opts.body);
+      return Response.json({id:'attached-test-id'});
+    }
+    throw Error('Unexpected URL');
+  };
+  try{
+    const result=await json(await onRequestPost(ctx(req({attachments:[photo,pdf]}))));
+    assert.equal(result.status,200);
+    assert.deepEqual(sent.attachments,[
+      {...photo,content_type:'image/jpeg'}, {...pdf,content_type:'application/pdf'}
+    ]);
+    assert.match(sent.text,/Three ceiling lights/);
+  }finally{globalThis.fetch=before;}
+});
+test('rejects unsafe, misleading or oversized attachment sets before contacting providers',async()=>{
+  const reject=[
+    {attachments:[{filename:'payload.exe',content:photo.content}]},
+    {attachments:[{filename:'wrong.pdf',content:photo.content}]},
+    {attachments:Array.from({length:5},()=>photo)},
+    {attachments:[{...photo,filename:'bad/../../photo.jpg'}]},
+    {attachments:[{...photo,content:'not even base64!'}]},
+    {attachments:'plain string'}
+  ];
+  const before=globalThis.fetch;
+  globalThis.fetch=async()=>{throw Error('Must reject before any outbound request');};
+  try{
+    for(const item of reject){
+      const result=await json(await onRequestPost(ctx(req(item))));
+      assert.equal(result.status,400,JSON.stringify(item).slice(0,90));
+    }
+  }finally{globalThis.fetch=before;}
+});
+test('keeps legacy text-only enquiries working without attachments',async()=>{
+  const before=globalThis.fetch;
+  let sent;
+  globalThis.fetch=async(url,opts)=>{
+    if(String(url).includes('siteverify'))return Response.json({success:true,hostname:'preview.example.com'});
+    sent=JSON.parse(opts.body);
+    return Response.json({id:'text-only-id'});
+  };
+  try{
+    assert.equal((await onRequestPost(ctx(req()))).status,200);
+    assert.equal(sent.attachments,undefined);
+  }finally{globalThis.fetch=before;}
+});
