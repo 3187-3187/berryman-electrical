@@ -15,6 +15,7 @@
      switchboard:'Switchboard assessment',
      lighting:'Lighting / power / fans',
      commercial:'Commercial electrical work',
+     industrial:'Industrial electrical work',
      ev:'EV charger installation',
      renovation:'Renovation / electrical upgrade',
      planned:'Other planned electrical work'

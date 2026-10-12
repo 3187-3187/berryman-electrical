@@ -8,7 +8,7 @@
 const TYPES = new Set([
   'Residential electrical work', 'Fault finding / repair',
   'Switchboard assessment', 'Lighting / power / fans',
-  'Commercial electrical work', 'EV charger installation',
+  'Commercial electrical work', 'Industrial electrical work', 'EV charger installation',
   'Renovation / electrical upgrade', 'Other planned electrical work'
 ]);
 // Conservative limits keep image enquiry emails reasonably small.

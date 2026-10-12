@@ -75,6 +75,20 @@ test('sends a text-only email and only confirms verified provider acceptance',as
     assert.doesNotMatch(JSON.stringify(result),/customer@example.net/);
   }finally{globalThis.fetch=before;}
 });
+test('accepts the industrial work type and sends the correct label',async()=>{
+  const before=globalThis.fetch;
+  let sent;
+  globalThis.fetch=async(url,opts)=>{
+    if(String(url).includes('siteverify'))return Response.json({success:true,hostname:'preview.example.com'});
+    sent=JSON.parse(opts.body);
+    return Response.json({id:'industrial-enquiry-test'});
+  };
+  try {
+    const result=await json(await onRequestPost(ctx(req({jobType:'Industrial electrical work',details:'Intermittent motor drive trips at a workshop'}))));
+    assert.equal(result.status,200);
+    assert.equal(sent.subject,'Website enquiry: Industrial electrical work');
+  } finally {globalThis.fetch=before;}
+});
 test('fails if email provider rejects or cannot confirm acceptance',async()=>{
   const before=globalThis.fetch;
   globalThis.fetch=async(url)=>{
