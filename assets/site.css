@@ -598,3 +598,16 @@ footer .footGrid{display:grid;grid-template-columns:1.25fr repeat(3,.75fr);gap:3
 .powerLightingPage .realPhoto figcaption{line-height:1.6}
 .powerLightingPage .scopeAside .kicker{color:#f5d575}
 @media(max-width:640px){.powerLightingPage .powerGuidanceGrid{grid-template-columns:1fr}.powerLightingPage .powerGuidance{padding:17px 0 2px}}
+
+
+/* Staged online-enquiry component: hidden until explicitly enabled with a valid site key. */
+.enquiryOnline[hidden]{display:none!important}
+.enquiryOnline{padding:21px 0 20px;margin-top:16px;border-top:1px solid #dce4e8;border-bottom:1px solid #dce4e8}
+.enquiryOnlineTitle{font-size:18px;font-weight:900;letter-spacing:-.02em;color:#142a42;margin:0 0 7px}
+.enquiryTurnstile{min-height:68px;max-width:100%;margin:15px 0}
+.enquiryOnline .btn{max-width:100%;white-space:normal;text-align:center}
+.enquiryOnline .btn[disabled]{opacity:.55;cursor:not-allowed}
+.enquiryOnlineStatus{font-size:13px;font-weight:700;line-height:1.6;color:#34526b;min-height:23px;margin-top:12px}
+.enquiryOnlineStatus[data-state="error"]{color:#9b2731}
+.contactPage [data-online-enquiry]:not([hidden])~button[type="submit"]{margin-top:14px}
+@media(max-width:640px){.enquiryOnline{padding:19px 0}.enquiryOnline .btn{width:100%}}
