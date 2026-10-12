@@ -11,6 +11,8 @@ on:
       - 'about/index.html'
       - 'services/fault-finding-electrical-repairs/**'
       - 'services/switchboard-upgrades/**'
+      - 'services/residential-electrician/**'
+      - 'services/commercial-electrician/**'
       - 'services/index.html'
       - 'contact/**'
       - 'assets/**'
