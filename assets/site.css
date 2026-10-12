@@ -334,9 +334,6 @@ footer .footGrid{display:grid;grid-template-columns:1.25fr repeat(3,.75fr);gap:3
   .pathwayGrid,.sectionSplit{grid-template-columns:1fr 1fr}
 }
 @media(max-width:640px){
-  .topbar{display:block}
-  .topbar .wrap{min-height:40px;justify-content:center;text-align:center}
-  .topbar .wrap span:nth-child(2){display:none}
   .heroBrandLine{font-size:25px}
   .pathwayGrid,.sectionSplit{grid-template-columns:1fr}
   .pageHeroCopy{font-size:16px}
