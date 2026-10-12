@@ -33,6 +33,9 @@ export async function onRequestPost({request, env}) {
       return reply(415, {ok:false,error:'Expected a JSON enquiry.'});
     if(Number(request.headers.get('Content-Length')||0)>10000)
       return reply(413, {ok:false,error:'Request too large.'});
+    // Explicit release switch: even configured credentials cannot send until approved.
+    if(env.FORM_ENABLE_SEND !== 'true')
+      return reply(503,{ok:false,error:'Online enquiries are not enabled. Please call or email directly.'});
     if(!env.FORM_TURNSTILE_SECRET || !env.FORM_RESEND_API_KEY ||
        !env.FORM_EMAIL_FROM || !env.FORM_EMAIL_TO)
       return reply(503, {ok:false,error:'Online enquiries are unavailable. Please call or email directly.'});
