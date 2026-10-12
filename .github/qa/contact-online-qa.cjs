@@ -16,11 +16,24 @@ const report=[];
    page.setDefaultNavigationTimeout(14000);
    const errors=[];
    page.on('pageerror',e=>errors.push(e.message));
+   await page.route('https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit', route=>route.fulfill({
+     status:200,contentType:'application/javascript',
+     body:'window.turnstile={render:()=>1,reset:()=>{}};'
+   }));
    await page.goto(ROOT+'/contact/?service=lighting',{waitUntil:'networkidle'});
-   if(await page.locator('[data-online-enquiry]').isVisible())errors.push('Online service visible with default disabled config');
-   if(!(await page.locator('form button[type="submit"]').isVisible()))errors.push('Manual draft fallback not visible');
-   if(await page.locator('form [data-online-send]').isVisible())errors.push('Inactive online-send button visible');
-   report.push({case:'disabled default / '+width,errors:[...errors]});
+   const enabled=await page.evaluate(()=>window.BERRYMAN_ENQUIRY?.enabled===true);
+   if(enabled){
+     if(!(await page.locator('[data-online-enquiry]').isVisible()))errors.push('Online enquiry is hidden in preview');
+     if(await page.locator('form button[type="submit"]').isVisible())errors.push('Draft submit should be hidden');
+     if(!(await page.locator('form [data-online-send]').isVisible()))errors.push('Online button is missing');
+     if(!(await page.locator('[data-online-attachments]').isVisible()))errors.push('Attachment picker is missing');
+   }else{
+     if(await page.locator('[data-online-enquiry]').isVisible())errors.push('Online service visible with disabled config');
+     if(!(await page.locator('form button[type="submit"]').isVisible()))errors.push('Manual draft fallback not visible');
+     if(await page.locator('form [data-online-send]').isVisible())errors.push('Inactive online-send button visible');
+     if(await page.locator('[data-online-attachments]').isVisible())errors.push('Attachments visible without online delivery');
+   }
+   report.push({case:'configured preview state / '+width,errors:[...errors]});
    if(errors.length)throw Error(report[report.length-1].case+': '+errors.join(' | '));
    await page.close();
  }
@@ -57,6 +70,11 @@ const report=[];
    await page.locator('input[name="name"]').fill('Test Person');
    await page.locator('input[name="contact"]').fill('test@example.net');
    await page.locator('textarea[name="job_details"]').fill('Install two new ceiling fans in the living room');
+   await page.locator('input[name="attachments"]').setInputFiles({
+     name:'switchboard.jpg',mimeType:'image/jpeg',
+     buffer:Buffer.from([255,216,255,224,0,16,74,70,73,70,0])
+   });
+   if(!(await page.locator('[data-attachment-status]').innerText()).includes('switchboard.jpg'))errors.push('Selected photo name missing');
    await page.locator('[data-online-send]').click();
    await page.waitForFunction(()=>document.querySelector('[data-online-status]')?.textContent.includes('could not be confirmed'));
    if(await page.locator('input[name="name"]').inputValue()!=='Test Person')errors.push('Form lost input after unsuccessful send');
@@ -68,6 +86,9 @@ const report=[];
    await page.waitForFunction(()=>document.querySelector('[data-online-status]')?.textContent.includes('accepted for email delivery'));
    if(posts.length!==2)errors.push('Expected a single retry POST');
    if(posts[0]?.jobType!=='Lighting / power / fans')errors.push('Incorrect posted service');
+   if(posts[0]?.attachments?.length!==1 || posts[0]?.attachments?.[0]?.filename!=='switchboard.jpg' ||
+      !posts[0]?.attachments?.[0]?.content?.startsWith('/9j/')) errors.push('Photo attachment missing from POST');
+   if(await page.locator('input[name="attachments"]').inputValue()!=='')errors.push('Photo selection not reset after success');
    if(posts[1]?.turnstileToken!=='new-mock-token')errors.push('Did not renew verification token');
    if(await page.locator('input[name="name"]').inputValue()!=='')errors.push('Successful send did not reset details');
    if(await page.locator('[data-online-send]').isEnabled())errors.push('Duplicate online submit still enabled');
