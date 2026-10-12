@@ -12,6 +12,8 @@ const report=[];
  const browser = await chromium.launch({headless:true});
  for(const width of [390,1440]){
    const page=await browser.newPage({viewport:{width,height:850}});
+   page.setDefaultTimeout(9000);
+   page.setDefaultNavigationTimeout(14000);
    const errors=[];
    page.on('pageerror',e=>errors.push(e.message));
    await page.goto(ROOT+'/contact/?service=lighting',{waitUntil:'networkidle'});
@@ -24,6 +26,8 @@ const report=[];
  }
  for(const width of [390,1440]){
    const page=await browser.newPage({viewport:{width,height:850}});
+   page.setDefaultTimeout(9000);
+   page.setDefaultNavigationTimeout(14000);
    const errors=[];
    page.on('pageerror',e=>errors.push(e.message));
    let responseCode=503;
@@ -77,4 +81,4 @@ const report=[];
  fs.writeFileSync(path.join(out,'contact-online-qa.md'),md.join('\n'));
  if(process.env.GITHUB_STEP_SUMMARY)fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,md.join('\n')+'\n');
  console.log(report.map(r=>r.case+' '+(r.errors.length?'FAIL':'PASS')).join('\n'));
-})().catch(e=>{console.error(e);process.exitCode=1;});
+})().catch(e=>{console.error('Online-form QA failed:',e?.stack||e);process.exit(1);});
