@@ -14,6 +14,7 @@ on:
       - 'services/residential-electrician/**'
       - 'services/commercial-electrician/**'
       - 'services/ev-charger-installation/**'
+      - 'services/power-lighting-fans/**'
       - 'services/index.html'
       - 'contact/**'
       - 'assets/**'
