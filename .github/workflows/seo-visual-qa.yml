@@ -21,6 +21,7 @@ on:
       - 'functions/**'
       - 'tests/contact-enquiry.test.mjs'
       - '.github/qa/seo-browser-qa.cjs'
+      - '.github/qa/contact-online-qa.cjs'
       - '.github/workflows/seo-visual-qa.yml'
   pull_request:
     branches: [main]
@@ -52,6 +53,8 @@ jobs:
           sleep 2
       - name: Run browser QA and produce screenshots
         run: NODE_PATH=/tmp/berryman-qa/node_modules node .github/qa/seo-browser-qa.cjs
+      - name: Test staged online enquiry UI (mocked; no real email)
+        run: NODE_PATH=/tmp/berryman-qa/node_modules node .github/qa/contact-online-qa.cjs
       - name: Upload QA report and screenshots
         if: always()
         uses: actions/upload-artifact@v4
