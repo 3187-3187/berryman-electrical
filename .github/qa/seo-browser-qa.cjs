@@ -7,6 +7,8 @@ const PAGES = [
   ['byron-bay', '/areas/electrician-byron-bay/'],
   ['fault-finding', '/services/fault-finding-electrical-repairs/'],
   ['switchboard-upgrades', '/services/switchboard-upgrades/'],
+  ['residential', '/services/residential-electrician/'],
+  ['commercial', '/services/commercial-electrician/'],
   ['services-hub', '/services/'],
   ['contact', '/contact/'],
   ['service-areas', '/areas/'],
@@ -91,7 +93,34 @@ const browserErrors = [];
         if (h1.trim() !== 'Electrician Mullumbimby') problems.push('Mullumbimby owner H1 not exact service-area intent');
         if ((await page.locator('main').innerText()).includes('Are you actually based in Byron Bay?')) problems.push('Outdated base-location FAQ remains');
       }
-            if (name === 'services-hub') {
+            if (name === 'residential' || name === 'commercial') {
+        const isResidential = name === 'residential';
+        const heading = isResidential ? 'Residential Electrical Services' : 'Commercial Electrical Services';
+        if ((await page.locator('main h1').innerText()).trim() !== heading) problems.push('Unexpected specialist owner H1');
+        if (await page.locator('main .scopeCard').count() !== 6) problems.push('Expected six service scope cards');
+        if (await page.locator('main .scopeConsideration').count() !== 4) problems.push('Expected four scoping considerations');
+        if (await page.locator('main .realPhoto img').count() !== 3) problems.push('Expected three genuine archive photos');
+        if (await page.locator('main .staticFaq details').count() !== 6) problems.push('Expected six service FAQs');
+        const result = await page.evaluate(() => {
+          const s=[...document.querySelectorAll('script[type="application/ld+json"]')].map(el=>{try{return JSON.parse(el.textContent)}catch{return null}});
+          const q=s.find(x=>x?.['@type']==='FAQPage');
+          const service=s.find(x=>x?.['@type']==='Service');
+          const shown=[...document.querySelectorAll('main .staticFaq details')].map(el=>({
+            name:el.querySelector('summary')?.textContent.trim(),
+            text:el.querySelector('p')?.textContent.trim()
+          }));
+          return {
+            faqMatch:!!q && q.mainEntity.length===shown.length && q.mainEntity.every((x,i)=>x.name===shown[i].name&&x.acceptedAnswer.text===shown[i].text),
+            serviceMatch:!!service && service.name===document.querySelector('main h1')?.textContent.trim(),
+            content:document.querySelector('main')?.textContent||''
+          };
+        });
+        if (!result.faqMatch) problems.push('FAQ schema does not match visible FAQs');
+        if (!result.serviceMatch) problems.push('Service JSON-LD and H1 mismatch');
+        if (/based in Byron Bay|Byron Bay-based/i.test(result.content)) problems.push('Unnecessary business base assertion');
+        if (/\$\s*\d+(?:\.\d+)?\s*(?:per hour|\/hr)/i.test(result.content)) problems.push('Unapproved published fixed hourly price');
+      }
+      if (name === 'services-hub') {
         if (await page.locator('main .hubServiceCard').count() !== 8) problems.push('Expected eight service cards');
         if (await page.locator('main a[href="emergency-electrician/"]').count()) problems.push('Linked to unpublished emergency service page');
       }
