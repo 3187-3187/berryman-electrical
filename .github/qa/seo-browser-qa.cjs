@@ -225,7 +225,7 @@ const browserErrors = [];
           }
           const invalid = await form.evaluate(el => el.checkValidity());
           if (invalid) problems.push('Empty form should be invalid');
-          if (!await page.locator('main').innerText().then(t => t.includes('does not submit enquiries to a server'))) problems.push('Missing transparent mailto disclosure');
+          if (!directEnabled && !await page.locator('main').innerText().then(t => t.includes('does not submit enquiries to a server'))) problems.push('Missing transparent mailto disclosure when mail draft fallback is primary');
           if (view === 'desktop') {
             for (const [service,expected] of [['switchboard','Switchboard assessment'],['residential','Residential electrical work'],['commercial','Commercial electrical work'],['industrial','Industrial electrical work'],['ev','EV charger installation']]) {
               await page.goto(BASE + '/contact/?service='+service, {waitUntil:'domcontentloaded', timeout:16000});
