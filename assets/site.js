@@ -22,6 +22,12 @@
    const selected=new URLSearchParams(window.location.search).get('service');
    const typeSelect=enquiry.querySelector('select[name="job_type"]');
    if(selected&&types[selected]&&typeSelect)typeSelect.value=types[selected];
+   // The Byron Bay location-page CTA can carry a non-sensitive suburb hint.
+   const suburb=new URLSearchParams(window.location.search).get('suburb');
+   const suburbInput=enquiry.querySelector('input[name="suburb"]');
+   if(suburbInput && suburb && !suburbInput.value && suburb.length<=100 && /^[\p{L}\p{N}\s,.'-]+$/u.test(suburb)){
+     suburbInput.value=suburb;
+   }
    enquiry.addEventListener('submit',e=>{
      e.preventDefault();
      if(!enquiry.reportValidity())return;
