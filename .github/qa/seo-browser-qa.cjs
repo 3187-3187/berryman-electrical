@@ -55,6 +55,25 @@ const browserErrors = [];
       if (!data.visibleCTA && !['service-areas','about'].includes(name)) problems.push('No visible main phone/contact CTA');
       if (data.idCount !== data.uniqueIdCount) problems.push('Duplicate HTML IDs');
       if (!data.canonical?.startsWith('https://www.berrymanelectrical.com.au/')) problems.push('Missing or unexpected canonical');
+      // Contrast checks for reusable suburb chips: white-on-white was missed by structural QA.
+      const localityContrasts = await page.locator('.seoAreaLinks a').evaluateAll(links => {
+        const luminance = (color) => {
+          const match=color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+          if(!match) return null;
+          const channels=[Number(match[1]),Number(match[2]),Number(match[3])].map(x=>{
+            const c=x/255;return c<=0.04045?c/12.92:((c+0.055)/1.055)**2.4;
+          });
+          return 0.2126*channels[0]+0.7152*channels[1]+0.0722*channels[2];
+        };
+        return links.map(link=>{
+          const style=getComputedStyle(link);
+          const l1=luminance(style.color),l2=luminance(style.backgroundColor);
+          return {label:link.textContent.trim(),contrast:l1===null||l2===null?0:(Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05)};
+        });
+      });
+      for(const chip of localityContrasts) {
+        if(!chip.label || chip.contrast < 4.5) problems.push('Unreadable locality chip '+JSON.stringify(chip));
+      }
       if (view === 'mobile') {
         const mobileToggle = page.locator('.mobileNavToggle');
         if (await mobileToggle.count()) {
