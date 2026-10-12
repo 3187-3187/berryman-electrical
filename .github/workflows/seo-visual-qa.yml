@@ -68,7 +68,7 @@ jobs:
           html = page.read_text(encoding="utf-8")
           original_size = len(html)
           stylesheet = '<link rel="stylesheet" href="../../assets/site.css"/>'
-          script = '<script defer="" src="../../assets/site.js"></script>'
+          script = '<script defer src="../../assets/site.js"></script>'
           assert html.count(stylesheet) == 1, "Stylesheet link changed"
           assert html.count(script) == 1, "Script link changed"
           assert "</style" not in css.lower()
