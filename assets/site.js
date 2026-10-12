@@ -30,6 +30,13 @@
    }
    enquiry.addEventListener('submit',e=>{
      e.preventDefault();
+     // The approved online experience never launches a mail client on Enter.
+     if(window.BERRYMAN_ENQUIRY?.enabled===true && enquiry.querySelector('[data-online-enquiry]:not([hidden])')){
+       if(!enquiry.reportValidity())return;
+       const onlineButton=enquiry.querySelector('[data-online-send]');
+       if(onlineButton && !onlineButton.disabled)onlineButton.click();
+       return;
+     }
      if(!enquiry.reportValidity())return;
      const fd=new FormData(enquiry);
      const get=k=>String(fd.get(k)||'').trim();
