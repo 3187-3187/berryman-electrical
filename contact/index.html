@@ -58,6 +58,14 @@
 <div class="field full"><label for="job-contact">Phone or email to contact you</label><input type="text" id="job-contact" name="contact" autocomplete="email" maxlength="120" placeholder="Your preferred contact details" required></div>
 <div class="field full"><label for="job-details">Describe the job or symptom</label><textarea id="job-details" name="job_details" maxlength="1500" rows="5" placeholder="What is affected, when did it start, or what work do you need? Include any timing constraints." required></textarea></div>
 </div>
+<div class="field full enquiryAttachments" data-online-attachments hidden>
+  <label for="job-attachments">Attach photos or files <span class="optional">(optional)</span></label>
+  <input type="file" id="job-attachments" name="attachments" multiple
+    accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf,.jpg,.jpeg,.png,.webp,.heic,.heif,.pdf"
+    aria-describedby="job-attachments-help job-attachments-status">
+  <p id="job-attachments-help" class="note">Photos or PDF documents. Up to 4 files, 5 MB each (10 MB total). Only take photos where it is safe.</p>
+  <p id="job-attachments-status" data-attachment-status role="status" aria-live="polite"></p>
+</div>
 <div class="enquiryOnline" data-online-enquiry hidden>
   <p class="enquiryOnlineTitle">Secure online enquiry</p>
   <p class="contactFormExplain">Complete the verification, then submit your enquiry. For urgent electrical dangers, call rather than using this form.</p>
