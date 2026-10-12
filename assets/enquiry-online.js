@@ -52,11 +52,13 @@
         sitekey: options.turnstileSiteKey,
         theme: 'auto',
         callback: value => {
+          if (finished) return;
           token = value;
           button.disabled = pending || finished || !token;
           state('Secure verification complete. You can send your enquiry online.');
         },
         'expired-callback': () => {
+          if (finished) return;
           token = '';
           button.disabled = true;
           state('Verification expired. Please complete it again.', true);
