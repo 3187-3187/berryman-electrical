@@ -573,3 +573,17 @@ footer .footGrid{display:grid;grid-template-columns:1.25fr repeat(3,.75fr);gap:3
  .serviceCategoryPage .realPhoto img{height:285px}
  .serviceCategoryPage .pageHero .heroActions .btn{max-width:100%;white-space:normal;text-align:center}
 }
+
+
+/* SEO Batch 7 — EV charger owner page proof/technical gallery */
+.evCategoryPage .evFeatureMedia{display:grid;grid-template-columns:1.08fr .92fr;gap:0;overflow:hidden;border-radius:22px;background:#183047;color:#fff;margin:28px 0 26px}
+.evFeatureMedia figure{margin:0;min-width:0;background:#0f2233;position:relative}
+.evFeatureMedia img{width:100%;height:390px;display:block;object-fit:cover}
+.evFeatureMedia figcaption{font-size:12px;line-height:1.55;color:#d2dfe9;background:#10243a;padding:14px 17px}
+.evFeatureMedia>div{padding:38px;display:flex;flex-direction:column;justify-content:center}
+.evFeatureMedia .kicker{color:#f1d37e}
+.evFeatureMedia h3{font-size:30px;line-height:1.17;letter-spacing:-.035em;margin:12px 0}
+.evFeatureMedia p{font-size:14px;line-height:1.65;color:#c8d3dc}
+.evCategoryPage .staticFaq{max-width:920px}
+@media(max-width:980px){.evCategoryPage .evFeatureMedia{grid-template-columns:1fr}.evFeatureMedia img{height:350px}.evFeatureMedia>div{padding:29px}}
+@media(max-width:640px){.evFeatureMedia img{height:250px}.evFeatureMedia>div{padding:25px}.evFeatureMedia h3{font-size:25px}}
