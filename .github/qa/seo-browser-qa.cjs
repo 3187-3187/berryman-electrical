@@ -8,7 +8,10 @@ const PAGES = [
   ['fault-finding', '/services/fault-finding-electrical-repairs/'],
   ['switchboard-upgrades', '/services/switchboard-upgrades/'],
   ['services-hub', '/services/'],
-  ['contact', '/contact/']
+  ['contact', '/contact/'],
+  ['service-areas', '/areas/'],
+  ['mullumbimby', '/areas/electrician-mullumbimby/'],
+  ['about', '/about/']
 ];
 const VIEWS = [
   ['mobile', 390, 844],
@@ -44,7 +47,7 @@ const browserErrors = [];
       if (!(await page.locator('header .brand').isVisible())) problems.push('Header brand is not visible');
       if (view === 'desktop' && !(await page.locator('header .navlinks').isVisible())) problems.push('Desktop navigation links are not visible');
       if (data.docWidth > width + 4 || data.bodyWidth > width + 4) problems.push('Horizontal overflow: doc ' + data.docWidth + ' / viewport ' + width);
-      if (!data.visibleCTA) problems.push('No visible main phone/contact CTA');
+      if (!data.visibleCTA && !['service-areas','about'].includes(name)) problems.push('No visible main phone/contact CTA');
       if (data.idCount !== data.uniqueIdCount) problems.push('Duplicate HTML IDs');
       if (!data.canonical?.startsWith('https://www.berrymanelectrical.com.au/')) problems.push('Missing or unexpected canonical');
       if (view === 'mobile') {
@@ -58,7 +61,12 @@ const browserErrors = [];
         const sticky = page.locator('.mobileStickyActions:visible, .mobileBar:visible');
         if (await sticky.count() !== 1) problems.push('Expected exactly one visible mobile CTA bar; found ' + await sticky.count());
       }
-      if (name === 'services-hub') {
+      if (name === 'mullumbimby') {
+        const h1 = await page.locator('main h1').innerText();
+        if (h1.trim() !== 'Electrician Mullumbimby') problems.push('Mullumbimby owner H1 not exact service-area intent');
+        if ((await page.locator('main').innerText()).includes('Are you actually based in Byron Bay?')) problems.push('Outdated base-location FAQ remains');
+      }
+            if (name === 'services-hub') {
         if (await page.locator('main .hubServiceCard').count() !== 8) problems.push('Expected eight service cards');
         if (await page.locator('main a[href="emergency-electrician/"]').count()) problems.push('Linked to unpublished emergency service page');
       }
