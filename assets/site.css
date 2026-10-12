@@ -634,3 +634,25 @@ footer .footGrid{display:grid;grid-template-columns:1.25fr repeat(3,.75fr);gap:3
 .enquiryAttachments [data-attachment-status]{font-size:12px;line-height:1.5;overflow-wrap:anywhere;margin:8px 0 0;color:#3b5970}
 .enquiryAttachments [data-attachment-status][data-state=error]{color:#9b2731;font-weight:750}
 
+
+
+/* Homepage mobile first-screen refinement (SEO preview review). */
+@media (max-width:640px){
+  .homeHero .heroGrid{padding:33px 0 39px;gap:19px}
+  .homeHero .eyebrow{font-size:10px;line-height:1.5;letter-spacing:.12em}
+  .homeHero h1{font-size:clamp(39px,10vw,48px);line-height:1.01;letter-spacing:-.045em;margin:13px 0 12px}
+  .homeHero .heroBrandLine{font-size:clamp(20px,5.5vw,24px);margin:0 0 12px;line-height:1.13}
+  .homeHero .heroCopy{font-size:15px;line-height:1.48;margin:0}
+  /* The persistent mobile Call / Get a Quote dock already provides both actions. */
+  .homeHero .heroActions{display:none}
+  .homeHero .heroReal{height:265px;max-height:none}
+  .homeHero .heroReal img{max-height:none;object-position:50% 34%}
+  .homePaths h2{font-size:clamp(31px,8.4vw,38px);line-height:1.09}
+  .homePaths .lead{line-height:1.5}
+  .trust.trustCompact .trustItem{padding:13px 12px}
+}
+@media (max-width:760px){
+  .mobileStickyActions{left:8px;right:8px;bottom:7px;gap:7px;padding:6px;border-radius:15px}
+  .mobileStickyActions a{min-height:41px;font-size:13px;padding:9px 12px}
+  body.hasStickyActions{padding-bottom:76px}
+}
