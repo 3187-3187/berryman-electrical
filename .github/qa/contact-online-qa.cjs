@@ -62,6 +62,7 @@ const report=[];
    if(posts.length!==1)errors.push('Expected exactly one failed POST');
    responseCode=200;
    await page.waitForFunction(()=>document.querySelector('[data-online-send]')?.disabled===false);
+   if(!(await page.locator('[data-online-status]').innerText()).includes('could not be confirmed')) errors.push('Failure status was lost after anti-spam token refresh');
    await page.locator('[data-online-send]').click();
    await page.waitForFunction(()=>document.querySelector('[data-online-status]')?.textContent.includes('accepted for email delivery'));
    if(posts.length!==2)errors.push('Expected a single retry POST');
