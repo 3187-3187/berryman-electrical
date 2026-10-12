@@ -162,7 +162,7 @@ const browserErrors = [];
             service:service?.name==='Power, Lighting & Ceiling Fans',
             faq:!!faq&&faq.mainEntity.length===shown.length&&faq.mainEntity.every((q,i)=>q.name===shown[i].name&&q.acceptedAnswer.text===shown[i].text),
             noBusinessBase:!/(based in Byron Bay|Byron Bay-based)/i.test(txt),
-            archiveHonest:txt.includes('not yet verified finished lighting or ceiling-fan photos')
+            archiveHonest:txt.includes('not presented as finished lighting or ceiling-fan installations')
           };
         });
         if (!checks.service) problems.push('Power/lighting Service JSON-LD mismatch');
