@@ -18,6 +18,8 @@ on:
       - 'services/index.html'
       - 'contact/**'
       - 'assets/**'
+      - 'functions/**'
+      - 'tests/contact-enquiry.test.mjs'
       - '.github/qa/seo-browser-qa.cjs'
       - '.github/workflows/seo-visual-qa.yml'
   pull_request:
@@ -38,6 +40,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Test staged Cloudflare enquiry endpoint (mocked; no real email)
+        run: node --experimental-default-type=module --test tests/contact-enquiry.test.mjs
       - name: Install browser test dependency
         run: npm install --prefix /tmp/berryman-qa --no-save playwright
       - name: Install Chromium
