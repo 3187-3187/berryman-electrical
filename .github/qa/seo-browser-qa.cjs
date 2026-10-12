@@ -1,0 +1,100 @@
+const { chromium } = require('playwright');
+const fs = require('fs');
+const path = require('path');
+const BASE = 'http://127.0.0.1:8765';
+const PAGES = [
+  ['homepage', '/'],
+  ['byron-bay', '/areas/electrician-byron-bay/'],
+  ['fault-finding', '/services/fault-finding-electrical-repairs/'],
+  ['switchboard-upgrades', '/services/switchboard-upgrades/']
+];
+const VIEWS = [
+  ['mobile', 390, 844],
+  ['tablet', 768, 1024],
+  ['desktop', 1440, 900]
+];
+const output = 'qa-output';
+fs.mkdirSync(output, { recursive: true });
+const results = [];
+let failed = false;
+const browserErrors = [];
+(async () => {
+  const browser = await chromium.launch({ headless: true });
+  for (const [name, url] of PAGES) {
+    for (const [view, width, height] of VIEWS) {
+      const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
+      const problems = [];
+      page.on('pageerror', error => problems.push('JS error: ' + error.message));
+      let res = await page.goto(BASE + url, { waitUntil: 'networkidle', timeout: 30000 });
+      if (res.status() !== 200) problems.push('Page response: ' + res.status());
+      const data = await page.evaluate(() => ({
+        width: innerWidth,
+        docWidth: document.documentElement.scrollWidth,
+        bodyWidth: document.body.scrollWidth,
+        h1s: document.querySelectorAll('main h1').length,
+        title: document.title,
+        canonical: document.querySelector('link[rel=canonical]')?.href || null,
+        visibleCTA: [...document.querySelectorAll('main a[href^="tel:"],main a[href*="/contact/"],main a[href="contact/"]')].some(el => el.getBoundingClientRect().width > 0),
+        idCount: document.querySelectorAll('[id]').length,
+        uniqueIdCount: new Set([...document.querySelectorAll('[id]')].map(el => el.id)).size
+      }));
+      if (data.h1s !== 1) problems.push('Expected exactly one main H1');
+      if (data.docWidth > width + 4 || data.bodyWidth > width + 4) problems.push('Horizontal overflow: doc ' + data.docWidth + ' / viewport ' + width);
+      if (!data.visibleCTA) problems.push('No visible main phone/contact CTA');
+      if (data.idCount !== data.uniqueIdCount) problems.push('Duplicate HTML IDs');
+      if (!data.canonical?.startsWith('https://www.berrymanelectrical.com.au/')) problems.push('Missing or unexpected canonical');
+      if (view === 'mobile') {
+        const mobileToggle = page.locator('.mobileNavToggle');
+        if (await mobileToggle.count()) {
+          await mobileToggle.click();
+          if (!(await page.locator('.mobileDrawer').isVisible())) problems.push('Mobile drawer did not open');
+          await mobileToggle.click();
+          if (await page.locator('.mobileDrawer').isVisible()) problems.push('Mobile drawer did not close');
+        }
+        const sticky = page.locator('.mobileStickyActions:visible, .mobileBar:visible');
+        if (await sticky.count() !== 1) problems.push('Expected exactly one visible mobile CTA bar; found ' + await sticky.count());
+      }
+      const firstFaq = page.locator('main details').first();
+      if (await firstFaq.count()) {
+        await firstFaq.locator('summary').click();
+        if (!(await firstFaq.evaluate(el => el.open))) problems.push('First FAQ did not open');
+      }
+      // Scroll lazy images into view; report failed actual loads.
+      const imgs = page.locator('main img');
+      for (let i=0;i<await imgs.count();i++) {
+        let img=imgs.nth(i);
+        await img.scrollIntoViewIfNeeded().catch(()=>{});
+        await img.evaluate(el => el.decode().catch(()=>{}));
+        if (!(await img.evaluate(el=>el.complete && el.naturalWidth>0))) {
+          problems.push('Image failed to load: ' + await img.getAttribute('src'));
+        }
+      }
+      if (view === 'desktop') {
+        const broken = await page.evaluate(async () => {
+          const urls = [...new Set([...document.querySelectorAll('a[href]')].map(a=>a.href).filter(x => x.startsWith(location.origin)))];
+          const bad = [];
+          for (const url of urls) {
+            try { const response = await fetch(url, { method:'GET' }); if (!response.ok) bad.push(url + ': ' + response.status); }
+            catch(e) { bad.push(url + ': ' + e.message); }
+          }
+          return bad;
+        });
+        problems.push(...broken.map(x=>'Broken internal link: '+x));
+      }
+      await page.screenshot({path:path.join(output,name+'-'+view+'.png'),fullPage:view!=='tablet'});
+      const row = {page:name,viewport:view,width,measured: data,problems};
+      results.push(row);
+      console.log((problems.length?'FAIL':'PASS') + ' ' + name + ' ' + view + ' ' + problems.join(' | '));
+      if (problems.length) failed=true;
+      await page.close();
+    }
+  }
+  await browser.close();
+  fs.writeFileSync(path.join(output,'qa-report.json'),JSON.stringify(results,null,2));
+  const lines=['# Berryman Electrical — SEO branch browser QA','', 'Tested '+new Date().toISOString(), '', '| Page | Viewport | Result |', '|---|---|---|'];
+  for(const r of results) lines.push('| '+r.page+' | '+r.viewport+' ('+r.width+'px) | '+(r.problems.length?r.problems.join('; '):'PASS')+' |');
+  lines.push('', 'Checks: actual Chromium rendering, title/canonical/H1, mobile nav, mobile sticky CTA, FAQ interaction, lazy-image loading, horizontal overflow, JS errors, and internal links.', '');
+  fs.writeFileSync(path.join(output,'qa-report.md'),lines.join('\n'));
+  if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,lines.join('\n')+'\n');
+  if (failed) process.exitCode=1;
+})().catch(e=>{console.error(e);process.exitCode=1;});
