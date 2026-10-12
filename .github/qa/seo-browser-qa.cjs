@@ -81,6 +81,9 @@ const browserErrors = [];
         });
         problems.push(...broken.map(x=>'Broken internal link: '+x));
       }
+      // Reset focus and scroll before capture, so fixed bars do not appear mid-page in full-page images.
+      await page.evaluate(() => { if (document.activeElement) document.activeElement.blur(); window.scrollTo(0,0); });
+      await page.waitForTimeout(200);
       await page.screenshot({path:path.join(output,name+'-'+view+'.png'),fullPage:view!=='tablet'});
       const row = {page:name,viewport:view,width,measured: data,problems};
       results.push(row);
