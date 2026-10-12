@@ -283,3 +283,37 @@ footer .footGrid{display:grid;grid-template-columns:1.25fr repeat(3,.75fr);gap:3
 @media(max-width:980px){.mobileNavToggle{display:grid;place-items:center}.navactions{display:none}footer .footGrid{grid-template-columns:1fr 1fr}}
 @media(max-width:640px){.mobileDrawer{top:66px}.stagingBadge{bottom:78px}.heroReal{max-height:300px}.heroReal img{max-height:260px;object-fit:cover;object-position:center 36%}footer .footGrid{grid-template-columns:1fr}}
 @media(min-width:641px){.stagingBadge{bottom:14px}}
+
+
+/* SEO first-wave shared conversion components */
+.topbar a{color:#fff;font-weight:900}
+.topbar a:hover{text-decoration:underline}
+
+.trust.trustCompact .trustItem{padding:16px 20px}
+.trust.trustCompact .trustItem b{font-size:14px}
+
+.btnUrgent,.btnDiagnostic,.btnPlanned{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:13px 18px;border-radius:999px;font-weight:900;font-size:14px;
+  cursor:pointer;transition:.2s;border:1px solid var(--navy)
+}
+.btnUrgent{background:var(--yellow);border-color:var(--yellow);color:var(--navy)}
+.btnDiagnostic{background:var(--navy);color:#fff}
+.btnPlanned{background:transparent;color:var(--navy)}
+.btnUrgent:hover,.btnDiagnostic:hover,.btnPlanned:hover{transform:translateY(-1px)}
+
+.mobileStickyActions{display:none}
+
+@media (max-width:760px){
+  .topbar .wrap{min-height:42px}
+  .topbar .wrap span:first-child{display:block}
+  .mobileStickyActions{
+    position:fixed;left:12px;right:12px;bottom:12px;z-index:90;
+    display:grid;grid-template-columns:1fr 1fr;gap:8px;
+    padding:8px;background:rgba(251,250,247,.96);
+    border:1px solid rgba(7,17,29,.12);border-radius:18px;
+    box-shadow:0 12px 34px rgba(7,17,29,.18);backdrop-filter:blur(14px)
+  }
+  .mobileStickyActions a{min-height:46px}
+  body.hasStickyActions{padding-bottom:82px}
+}
