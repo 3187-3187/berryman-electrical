@@ -41,7 +41,8 @@ function safeAttachments(list) {
   for(const item of list){
     if(!item || typeof item !== 'object' || Array.isArray(item) ||
        typeof item.filename !== 'string' || item.filename.length < 5 ||
-       item.filename.length > 120 || typeof item.content !== 'string')return null;
+       item.filename.length > 120 || /[\\/]/.test(item.filename) || item.filename.includes('..') ||
+       typeof item.content !== 'string')return null;
     const ext=item.filename.split('.').pop()?.toLowerCase();
     if(!Object.hasOwn(ALLOWED_FILE_TYPES,ext))return null;
     const data=item.content;
