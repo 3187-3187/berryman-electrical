@@ -25,6 +25,7 @@
   let token = '';
   let pending = false;
   let finished = false;
+  let hasError = false;
   const state = (message, error = false) => {
     status.textContent = message;
     status.dataset.state = error ? 'error' : 'info';
@@ -55,17 +56,19 @@
           if (finished) return;
           token = value;
           button.disabled = pending || finished || !token;
-          state('Secure verification complete. You can send your enquiry online.');
+          if (!hasError) state('Secure verification complete. You can send your enquiry online.');
         },
         'expired-callback': () => {
           if (finished) return;
           token = '';
           button.disabled = true;
+          hasError = true;
           state('Verification expired. Please complete it again.', true);
         },
         'error-callback': () => {
           token = '';
           button.disabled = true;
+          hasError = true;
           state('Verification unavailable. Use the email draft or call.', true);
         },
       });
@@ -87,6 +90,7 @@
       return;
     }
     pending = true;
+    hasError = false;
     button.disabled = true;
     button.textContent = 'Sending enquiry…';
     state('Sending your enquiry…');
@@ -120,9 +124,11 @@
         const draft = form.querySelector('.success');
         if (draft) draft.hidden = true;
       } else {
+        hasError = true;
         state('Online delivery could not be confirmed. Your details are still here. Please retry or use the email draft or phone.', true);
       }
     } catch {
+      hasError = true;
       state('Online delivery could not be confirmed. Your details are still here. Please use the email draft or phone.', true);
     } finally {
       clearTimeout(timer);
