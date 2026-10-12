@@ -756,3 +756,73 @@ footer .footGrid{display:grid;grid-template-columns:1.25fr repeat(3,.75fr);gap:3
   .homeProfessional .trust.trustCompact .trustItem span{font-size:8px;line-height:1.35}
 }
 @media(prefers-reduced-motion:reduce){.proHeroSectorList a{transition:none}}
+
+
+/* Branded sector hero backgrounds — commercial and industrial.
+   Decorative AI-designed artwork only; real project evidence is shown separately.
+   Matching navy/gold treatment and responsive crop from the homepage system. */
+.serviceCategoryPage.commercial-electrician .pageHero,
+.specialistPage.industrial-electrician .pageHero{
+  position:relative;
+  isolation:isolate;
+  min-height:485px;
+  display:flex;
+  align-items:center;
+  background-color:#07111d;
+  background-repeat:no-repeat;
+  background-size:cover;
+  background-position:center;
+  border-bottom:1px solid rgba(239,194,65,.28)
+}
+.serviceCategoryPage.commercial-electrician .pageHero{
+  background-image:
+    linear-gradient(90deg,rgba(7,17,29,.78) 0%,rgba(7,17,29,.39) 64%,rgba(7,17,29,.17) 100%),
+    url("photos/commercial-hero.webp");
+}
+.specialistPage.industrial-electrician .pageHero{
+  background-image:
+    linear-gradient(90deg,rgba(7,17,29,.79) 0%,rgba(7,17,29,.40) 66%,rgba(7,17,29,.14) 100%),
+    url("photos/industrial-hero.webp");
+}
+.serviceCategoryPage.commercial-electrician .pageHero>.wrap,
+.specialistPage.industrial-electrician .pageHero>.wrap{position:relative;z-index:1}
+.serviceCategoryPage.commercial-electrician .pageHero h1,
+.specialistPage.industrial-electrician .pageHero h1{
+  font-family:Georgia,"Times New Roman",serif;
+  font-weight:700;
+  letter-spacing:-.044em;
+  max-width:930px;
+  text-wrap:balance
+}
+.serviceCategoryPage.commercial-electrician .pageHero .eyebrow,
+.specialistPage.industrial-electrician .pageHero .eyebrow{color:#efc773}
+.serviceCategoryPage.commercial-electrician .pageHero .breadcrumb,
+.specialistPage.industrial-electrician .pageHero .breadcrumb{color:#e0e2e5}
+.serviceCategoryPage.commercial-electrician .pageHero .pageHeroCopy,
+.specialistPage.industrial-electrician .pageHero .pageHeroCopy{color:#f0f2f5;text-shadow:0 1px 12px rgba(0,0,0,.16)}
+.serviceCategoryPage.commercial-electrician .pageHero .serviceHeroNote,
+.specialistPage.industrial-electrician .pageHero .serviceHeroNote{color:#d3dce5}
+.serviceCategoryPage.commercial-electrician .pageHero .btn.ghost,
+.specialistPage.industrial-electrician .pageHero .btn.ghost{border-color:rgba(239,194,65,.72)}
+@media(max-width:760px){
+  .serviceCategoryPage.commercial-electrician .pageHero,
+  .specialistPage.industrial-electrician .pageHero{
+    min-height:0;
+    padding:47px 0 49px;
+    background-position:60% center
+  }
+  .serviceCategoryPage.commercial-electrician .pageHero{
+    background-image:linear-gradient(90deg,rgba(7,17,29,.91),rgba(7,17,29,.75)),url("photos/commercial-hero.webp")
+  }
+  .specialistPage.industrial-electrician .pageHero{
+    background-image:linear-gradient(90deg,rgba(7,17,29,.92),rgba(7,17,29,.72)),url("photos/industrial-hero.webp")
+  }
+  .serviceCategoryPage.commercial-electrician .pageHero h1,
+  .specialistPage.industrial-electrician .pageHero h1{
+    font-size:clamp(38px,10vw,48px);
+    line-height:1.06;
+    max-width:100%
+  }
+  .serviceCategoryPage.commercial-electrician .pageHero .pageHeroCopy,
+  .specialistPage.industrial-electrician .pageHero .pageHeroCopy{font-size:16px;line-height:1.48}
+}
