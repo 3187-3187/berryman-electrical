@@ -51,7 +51,8 @@ const report=[];
    await page.locator('[data-online-enquiry]').waitFor({state:'visible'});
    await page.waitForFunction(()=>document.querySelector('[data-online-send]')?.disabled===false);
    if(await page.locator('select[name="job_type"]').inputValue()!=='Lighting / power / fans')errors.push('Wrong service prefilling');
-   if(!(await page.locator('form button[type="submit"]').isVisible()))errors.push('No manual email fallback');
+   if(await page.locator('form button[type="submit"]').isVisible())errors.push('Email draft button still visible when online sending enabled');
+   if(!(await page.locator('form a[href^="mailto:"]').first().isVisible()))errors.push('Email fallback link not accessible');
    await page.locator('input[name="suburb"]').fill('Byron Bay');
    await page.locator('input[name="name"]').fill('Test Person');
    await page.locator('input[name="contact"]').fill('test@example.net');
@@ -77,7 +78,7 @@ const report=[];
    await page.close();
  }
  await browser.close();
- const md=['# Staged Contact enhancement browser QA','','- Disabled by default, manual mail draft present at mobile/desktop','- Mocked Turnstile client and API (no real emails)','- Failure leaves inputs intact; retry uses new token; acceptance prevents duplicate submits','','| Scenario | Result |','|---|---|'];
+ const md=['# Staged Contact enhancement browser QA','','- Disabled by default, manual mail draft present at mobile/desktop; hidden when direct sending is enabled','- Mocked Turnstile client and API (no real emails)','- Failure leaves inputs intact; retry uses new token; acceptance prevents duplicate submits','','| Scenario | Result |','|---|---|'];
  for(const r of report)md.push('| '+r.case+' | '+(r.errors.length?'FAIL: '+r.errors.join(', '):'PASS')+' |');
  fs.writeFileSync(path.join(out,'contact-online-qa.md'),md.join('\n'));
  if(process.env.GITHUB_STEP_SUMMARY)fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,md.join('\n')+'\n');
