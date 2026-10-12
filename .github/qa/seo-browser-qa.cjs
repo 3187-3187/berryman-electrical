@@ -10,6 +10,7 @@ const PAGES = [
   ['residential', '/services/residential-electrician/'],
   ['commercial', '/services/commercial-electrician/'],
   ['ev-charger', '/services/ev-charger-installation/'],
+  ['power-lighting-fans', '/services/power-lighting-fans/'],
   ['services-hub', '/services/'],
   ['contact', '/contact/'],
   ['service-areas', '/areas/'],
@@ -141,6 +142,33 @@ const browserErrors = [];
         const t=await page.locator('main').innerText();
         if (/Byron Bay-based|based in Byron Bay/i.test(t)) problems.push('Unnecessary business base repetition');
         if (/\$\s*\d+\s*(?:fixed|installed|installation|total)/i.test(t)) problems.push('Unapproved fixed charger installation price');
+      }
+      if (name === 'power-lighting-fans') {
+        const h = (await page.locator('main h1').innerText()).trim();
+        if (h !== 'Power, Lighting & Ceiling Fans') problems.push('Incorrect power lighting owner H1');
+        if (await page.locator('main .scopeCard').count() !== 6) problems.push('Power service cards missing');
+        if (await page.locator('main .scopeConsideration').count() !== 4) problems.push('Quote preparation cards missing');
+        if (await page.locator('main .powerGuidance').count() !== 4) problems.push('Equipment guidance cards missing');
+        if (await page.locator('main .realPhoto img').count() !== 3) problems.push('Genuine work archive photos missing');
+        if (await page.locator('main .staticFaq details').count() !== 7) problems.push('Expected seven lighting/power FAQs');
+        if (await page.locator('main a[href="../../contact/?service=lighting"]').count() < 3) problems.push('Lighting enquiry CTAs not using preselected contact path');
+        const checks = await page.evaluate(() => {
+          const json=[...document.querySelectorAll('script[type="application/ld+json"]')].map(x=>{try{return JSON.parse(x.textContent)}catch{return null}});
+          const service=json.find(x=>x?.['@type']==='Service');
+          const faq=json.find(x=>x?.['@type']==='FAQPage');
+          const shown=[...document.querySelectorAll('main .staticFaq details')].map(el=>({name:el.querySelector('summary')?.textContent.trim(),text:el.querySelector('p')?.textContent.trim()}));
+          const txt=document.querySelector('main')?.textContent||'';
+          return {
+            service:service?.name==='Power, Lighting & Ceiling Fans',
+            faq:!!faq&&faq.mainEntity.length===shown.length&&faq.mainEntity.every((q,i)=>q.name===shown[i].name&&q.acceptedAnswer.text===shown[i].text),
+            noBusinessBase:!/(based in Byron Bay|Byron Bay-based)/i.test(txt),
+            archiveHonest:txt.includes('not yet verified finished lighting or ceiling-fan photos')
+          };
+        });
+        if (!checks.service) problems.push('Power/lighting Service JSON-LD mismatch');
+        if (!checks.faq) problems.push('Power/lighting FAQ schema mismatch');
+        if (!checks.noBusinessBase) problems.push('Business base repeated');
+        if (!checks.archiveHonest) problems.push('Missing image evidence caveat');
       }
       if (name === 'services-hub') {
         if (await page.locator('main .hubServiceCard').count() !== 8) problems.push('Expected eight service cards');
