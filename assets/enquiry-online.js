@@ -16,11 +16,19 @@
   const fallback = form.querySelector('[data-draft-explanation]');
   const heading = form.querySelector('[data-form-heading]');
   const draftSubmit = form.querySelector('button[type="submit"]');
+  const attachmentField = form.querySelector('[data-online-attachments]');
+  const attachmentInput = form.querySelector('input[name="attachments"]');
+  const attachmentStatus = form.querySelector('[data-attachment-status]');
+  const MAX_FILES = 4;
+  const MAX_FILE_BYTES = 5 * 1024 * 1024;
+  const MAX_TOTAL_BYTES = 10 * 1024 * 1024;
+  const FILE_EXTENSIONS = new Set(['jpg','jpeg','png','webp','heic','heif','pdf']);
   // Once online submission is truly enabled, the in-house form is primary.
   // Visitors still have a plain email link and phone number if delivery fails.
   if (draftSubmit) draftSubmit.hidden = true;
   if (!block || !button || !status || !challenge) return;
   block.hidden = false;
+  if (attachmentField) attachmentField.hidden = false;
   if (heading) heading.textContent = 'Send an electrical enquiry';
   if (fallback) fallback.textContent =
     'Fill in the details, complete the security check and press Send enquiry online. No email app is needed. This does not confirm a booking.';
@@ -30,6 +38,47 @@
   let pending = false;
   let finished = false;
   let hasError = false;
+  let fileError = '';
+  const validateFiles = () => {
+    const files = Array.from(attachmentInput?.files || []);
+    let error = '';
+    if (files.length > MAX_FILES) error = 'Please select no more than 4 files.';
+    let total = 0;
+    for (const file of files) {
+      total += file.size;
+      const ext = file.name.split('.').pop()?.toLowerCase();
+      if (!FILE_EXTENSIONS.has(ext) || file.name.length > 120) {
+        error = 'Select JPG, PNG, WebP, HEIC, HEIF or PDF files only.';
+        break;
+      }
+      if (!file.size || file.size > MAX_FILE_BYTES) {
+        error = 'Each file must be 5 MB or smaller.';
+        break;
+      }
+    }
+    if (!error && total > MAX_TOTAL_BYTES) error = 'All files together must be 10 MB or smaller.';
+    fileError = error;
+    if (attachmentStatus) {
+      attachmentStatus.textContent = error || (files.length ? files.length + ' ready: ' +
+        files.map(f => f.name).join(', ') : 'No files selected (optional).');
+      attachmentStatus.dataset.state = error ? 'error' : 'info';
+    }
+    if (button) button.disabled = pending || finished || !token || !!fileError;
+    return !error;
+  };
+  if (attachmentInput) attachmentInput.addEventListener('change', validateFiles);
+  const readBase64 = file => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('File could not be read'));
+    reader.onload = () => {
+      const data = reader.result;
+      const marker = ';base64,';
+      if (typeof data !== 'string' || !data.includes(marker))
+        return reject(new Error('Invalid file encoding'));
+      resolve({filename:file.name,content:data.slice(data.indexOf(marker)+marker.length)});
+    };
+    reader.readAsDataURL(file);
+  });
   const state = (message, error = false) => {
     status.textContent = message;
     status.dataset.state = error ? 'error' : 'info';
@@ -59,7 +108,7 @@
         callback: value => {
           if (finished) return;
           token = value;
-          button.disabled = pending || finished || !token;
+          button.disabled = pending || finished || !token || !!fileError;
           if (!hasError) state('Secure verification complete. You can send your enquiry online.');
         },
         'expired-callback': () => {
@@ -93,6 +142,10 @@
       state('Complete the required details before sending.', true);
       return;
     }
+    if (!validateFiles()) {
+      state('Please correct the selected attachments before sending.', true);
+      return;
+    }
     pending = true;
     hasError = false;
     button.disabled = true;
@@ -109,9 +162,19 @@
       turnstileToken: token,
     };
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 12000);
+    let timer;
     let accepted = false;
+    let preparingFiles = true;
     try {
+      const files = Array.from(attachmentInput?.files || []);
+      if (files.length) {
+        state('Preparing ' + files.length + ' attachment(s)…');
+        payload.attachments = await Promise.all(files.map(readBase64));
+      }
+      preparingFiles = false;
+      button.textContent = 'Sending enquiry…';
+      state('Sending your enquiry…');
+      timer = setTimeout(() => controller.abort(), files.length ? 35000 : 12000);
       const response = await fetch('/api/enquiry', {
         method: 'POST',
         credentials: 'same-origin',
@@ -125,6 +188,8 @@
         finished = true;
         state('Your enquiry was accepted for email delivery. This is not a confirmed booking. We will be in touch.');
         form.reset();
+        fileError = '';
+        if (attachmentStatus) attachmentStatus.textContent = '';
         const draft = form.querySelector('.success');
         if (draft) draft.hidden = true;
       } else {
@@ -138,16 +203,19 @@
           'Verification failed. Please try again.',
           'Verification unavailable. Try again later.',
           'We could not deliver your enquiry. Please call or email directly.',
-          'Email provider acceptance could not be confirmed. Please contact us directly.'
+          'Email provider acceptance could not be confirmed. Please contact us directly.',
+          'Files must be JPG, PNG, WebP, HEIC, HEIF or PDF (up to 4 files, 5 MB each, 10 MB total).'
         ]);
         const reason = knownReasons.has(body?.error) ? body.error + ' ' : '';
         state(reason + 'Online delivery could not be confirmed. Your details are still here. Please retry or use the email draft or phone.', true);
       }
     } catch {
       hasError = true;
-      state('Online delivery could not be confirmed. Your details are still here. Please use the email draft or phone.', true);
+      state(preparingFiles
+        ? 'Your attachments could not be read. Please select the files again, or send your enquiry without attachments.'
+        : 'Online delivery could not be confirmed. Your details are still here. Please use the email draft or phone.', true);
     } finally {
-      clearTimeout(timer);
+      if (timer) clearTimeout(timer);
       pending = false;
       reset();
       button.textContent = accepted ? 'Enquiry accepted for delivery' : 'Send enquiry online';
