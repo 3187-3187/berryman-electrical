@@ -41,6 +41,8 @@ const browserErrors = [];
         uniqueIdCount: new Set([...document.querySelectorAll('[id]')].map(el => el.id)).size
       }));
       if (data.h1s !== 1) problems.push('Expected exactly one main H1');
+      if (!(await page.locator('header .brand').isVisible())) problems.push('Header brand is not visible');
+      if (view === 'desktop' && !(await page.locator('header .navlinks').isVisible())) problems.push('Desktop navigation links are not visible');
       if (data.docWidth > width + 4 || data.bodyWidth > width + 4) problems.push('Horizontal overflow: doc ' + data.docWidth + ' / viewport ' + width);
       if (!data.visibleCTA) problems.push('No visible main phone/contact CTA');
       if (data.idCount !== data.uniqueIdCount) problems.push('Duplicate HTML IDs');
@@ -107,8 +109,13 @@ const browserErrors = [];
         problems.push(...broken.map(x=>'Broken internal link: '+x));
       }
       // Reset focus and scroll before capture, so fixed bars do not appear mid-page in full-page images.
-      await page.evaluate(() => { if (document.activeElement) document.activeElement.blur(); window.scrollTo(0,0); });
-      await page.waitForTimeout(200);
+      await page.evaluate(() => {
+        if (document.activeElement) document.activeElement.blur();
+        document.documentElement.style.scrollBehavior = 'auto';
+        document.body.style.scrollBehavior = 'auto';
+        window.scrollTo({top:0,left:0,behavior:'instant'});
+      });
+      await page.waitForFunction(() => window.scrollY === 0);
       await page.screenshot({path:path.join(output,name+'-'+view+'.png'),fullPage:view!=='tablet'});
       const row = {page:name,viewport:view,width,measured: data,problems};
       results.push(row);
