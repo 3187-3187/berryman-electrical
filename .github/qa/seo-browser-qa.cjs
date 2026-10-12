@@ -193,6 +193,15 @@ const browserErrors = [];
         if (await page.locator('main .hubServiceCard').count() !== 8) problems.push('Expected eight service cards');
         if (await page.locator('main a[href="emergency-electrician/"]').count()) problems.push('Linked to unpublished emergency service page');
       }
+      if (name === 'homepage' || name === 'byron-bay') {
+        // A customer must never mistake a mailto draft for a submitted lead.
+        if (await page.locator('main form[data-email-enquiry]').count()) problems.push('Legacy inline email-draft form remains');
+        const central = page.locator('main .quoteRouteCard a[href*="contact/"]');
+        if (await central.count() !== 1 || !(await central.isVisible())) problems.push('Missing central website contact CTA');
+        if (name === 'byron-bay' && !(await central.getAttribute('href'))?.includes('suburb=Byron%20Bay')) {
+          problems.push('Byron Bay locality hint is missing from contact link');
+        }
+      }
       if (name === 'contact') {
         const form = page.locator('form[data-email-enquiry]');
         if (await form.count() !== 1) problems.push('Contact enquiry form missing');
@@ -210,6 +219,8 @@ const browserErrors = [];
               await page.goto(BASE + '/contact/?service='+service, {waitUntil:'networkidle'});
               if (await form.locator('select[name="job_type"]').inputValue() !== expected) problems.push('Service preselect failed: '+service);
             }
+            await page.goto(BASE + '/contact/?suburb=Byron%20Bay', {waitUntil:'networkidle'});
+            if (await form.locator('input[name="suburb"]').inputValue() !== 'Byron Bay') problems.push('Byron Bay suburb prefill failed');
             await page.goto(BASE + '/contact/', {waitUntil:'networkidle'});
           }
         }
