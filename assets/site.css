@@ -611,3 +611,15 @@ footer .footGrid{display:grid;grid-template-columns:1.25fr repeat(3,.75fr);gap:3
 .enquiryOnlineStatus[data-state="error"]{color:#9b2731}
 .contactPage [data-online-enquiry]:not([hidden])~button[type="submit"]{margin-top:14px}
 @media(max-width:640px){.enquiryOnline{padding:19px 0}.enquiryOnline .btn{width:100%}}
+
+
+/* Prelaunch contact consolidation: one genuine website enquiry owner */
+.quoteRouteCard{background:#fff;color:#13263c;border-radius:23px;padding:28px;border:1px solid #dce4e8;box-shadow:0 14px 36px rgba(8,22,35,.09)}
+.quoteRouteCard .kicker{color:#8a6b05}
+.quoteRouteCard h3{color:#12263d;font-size:clamp(24px,3vw,32px);line-height:1.2;letter-spacing:-.035em;margin:12px 0}
+.quoteRouteCard p{font-size:14px;line-height:1.65;color:#556a7e;margin:0 0 19px}
+.quoteRouteCard .btn{max-width:100%;white-space:normal;text-align:center}
+.quoteRouteCard .quoteRouteNote{font-size:12px;margin:17px 0 0}
+.quoteRouteCard .quoteRouteNote a{text-decoration:underline;font-weight:800;color:#0d2b44}
+.contactPage button[type="submit"][hidden]{display:none!important}
+@media(max-width:640px){.quoteRouteCard{padding:23px}.quoteRouteCard .btn{width:100%}}
