@@ -11,6 +11,7 @@ const PAGES = [
   ['contact', '/contact/'],
   ['service-areas', '/areas/'],
   ['mullumbimby', '/areas/electrician-mullumbimby/'],
+  ['brunswick-heads', '/areas/electrician-brunswick-heads/'],
   ['about', '/about/']
 ];
 const VIEWS = [
@@ -60,6 +61,30 @@ const browserErrors = [];
         }
         const sticky = page.locator('.mobileStickyActions:visible, .mobileBar:visible');
         if (await sticky.count() !== 1) problems.push('Expected exactly one visible mobile CTA bar; found ' + await sticky.count());
+      }
+      if (name === 'mullumbimby' || name === 'brunswick-heads') {
+        const place=name==='mullumbimby'?'Mullumbimby':'Brunswick Heads';
+        const heading = await page.locator('main h1').innerText();
+        if (heading.trim() !== 'Electrician '+place) problems.push('Area owner H1 incorrect for '+place);
+        if (await page.locator('main .localServiceCard').count() !== 6) problems.push('Expected six local service cards');
+        if (await page.locator('main .localIntentCard').count() !== 3) problems.push('Expected three contact pathways');
+        if (await page.locator('main .realPhoto img').count() !== 3) problems.push('Expected three genuine evidence images');
+        const qs = await page.locator('main .staticFaq details').count();
+        if (qs !== 6) problems.push('Expected six visible FAQ questions; found '+qs);
+        const text = await page.locator('main').innerText();
+        if (/based in (Byron Bay|Mullumbimby|Brunswick Heads)/i.test(text)) problems.push('Repeated public business-base statement');
+        if (/these jobs were (in|at) (Mullumbimby|Brunswick Heads)/i.test(text)) problems.push('Unverified job location claim');
+        const faqSchema = await page.evaluate(() => {
+           const s=[...document.querySelectorAll('script[type="application/ld+json"]')].map(x => {
+             try {return JSON.parse(x.textContent);}catch{return null;}
+           }).find(x=>x?.['@type']==='FAQPage');
+           const visible=[...document.querySelectorAll('main .staticFaq details')].map(x=>({
+             name:x.querySelector('summary')?.textContent?.trim(),
+             text:x.querySelector('p')?.textContent?.trim()
+           }));
+           return !!s && s.mainEntity.length===visible.length && s.mainEntity.every((q,i)=>q.name===visible[i].name&&q.acceptedAnswer.text===visible[i].text);
+        });
+        if (!faqSchema) problems.push('Visible FAQ and schema mismatch');
       }
       if (name === 'mullumbimby') {
         const h1 = await page.locator('main h1').innerText();
