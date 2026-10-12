@@ -39,8 +39,8 @@
 </div>
 <div class="contactFormWrap">
 <form id="job-enquiry" class="form" data-email-enquiry action="mailto:info@berrymanelectrical.com.au" method="post" enctype="text/plain">
-<div class="kicker">Non-urgent electrical enquiry</div><h3>Prepare an email enquiry</h3>
-<p class="contactFormExplain">Fill in the details below, then tap <strong>Open email draft</strong>. Your email app must open and you must press Send yourself. This page does not submit enquiries to a server.</p>
+<div class="kicker">Non-urgent electrical enquiry</div><h3 data-form-heading>Prepare an email enquiry</h3>
+<p class="contactFormExplain" data-draft-explanation>Fill in the details below, then tap <strong>Open email draft</strong>. Your email app must open and you must press Send yourself. This page does not submit enquiries to a server.</p>
 <div class="formGrid">
 <div class="field full"><label for="job-type">What type of electrical work?</label><select id="job-type" name="job_type" required>
 <option value="" selected disabled>Select the closest option</option>
@@ -57,6 +57,13 @@
 <div class="field"><label for="job-name">Your name</label><input type="text" id="job-name" name="name" autocomplete="name" maxlength="100" placeholder="Your name" required></div>
 <div class="field full"><label for="job-contact">Phone or email to contact you</label><input type="text" id="job-contact" name="contact" autocomplete="email" maxlength="120" placeholder="Your preferred contact details" required></div>
 <div class="field full"><label for="job-details">Describe the job or symptom</label><textarea id="job-details" name="job_details" maxlength="1500" rows="5" placeholder="What is affected, when did it start, or what work do you need? Include any timing constraints." required></textarea></div>
+</div>
+<div class="enquiryOnline" data-online-enquiry hidden>
+  <p class="enquiryOnlineTitle">Secure online enquiry</p>
+  <p class="contactFormExplain">Complete the verification, then submit your enquiry. For urgent electrical dangers, call rather than using this form.</p>
+  <div data-turnstile-widget class="enquiryTurnstile" aria-label="Spam protection verification"></div>
+  <button class="btn dark" type="button" data-online-send disabled>Send enquiry online</button>
+  <p data-online-status role="status" aria-live="polite" aria-atomic="true" class="enquiryOnlineStatus"></p>
 </div>
 <button class="btn dark" type="submit">Open email draft</button>
 <div class="success" role="status" aria-live="polite" hidden>Your email draft should open in your email app. Review the details, attach photos if needed, then press Send. The enquiry has not been submitted from this website.</div>
@@ -79,4 +86,4 @@
 <div><h4>Areas &amp; help</h4><a href="../areas/electrician-byron-bay/">Byron Bay</a><a href="../areas/electrician-mullumbimby/">Mullumbimby</a><a href="../guides/">Electrical guides</a><a href="../contact/">Contact</a><a href="../projects/">Recent work</a></div>
 <div><h4>Business</h4><a href="../contact/">Contact</a><a href="../privacy/">Privacy</a></div></div><div class="legal">ABN 55 793 387 642 · NSW Electrical Contractor Licence 202700C</div></div></footer>
 <div class="mobileStickyActions"><a class="btnUrgent" href="tel:+61424157002">Call</a><a class="btnPlanned" href="#job-enquiry">Get a Quote</a></div>
-<script defer="" src="../assets/site.js"></script></body></html>
+<script defer="" src="../assets/enquiry-config.js"></script><script defer="" src="../assets/enquiry-online.js"></script><script defer="" src="../assets/site.js"></script></body></html>
