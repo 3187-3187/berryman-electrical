@@ -9,6 +9,7 @@ const PAGES = [
   ['switchboard-upgrades', '/services/switchboard-upgrades/'],
   ['residential', '/services/residential-electrician/'],
   ['commercial', '/services/commercial-electrician/'],
+  ['industrial', '/services/industrial-electrician/'],
   ['ev-charger', '/services/ev-charger-installation/'],
   ['power-lighting-fans', '/services/power-lighting-fans/'],
   ['services-hub', '/services/'],
@@ -33,9 +34,11 @@ const browserErrors = [];
   for (const [name, url] of PAGES) {
     for (const [view, width, height] of VIEWS) {
       const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
+      page.setDefaultTimeout(9000);
+      page.setDefaultNavigationTimeout(16000);
       const problems = [];
       page.on('pageerror', error => problems.push('JS error: ' + error.message));
-      let res = await page.goto(BASE + url, { waitUntil: 'networkidle', timeout: 30000 });
+      let res = await page.goto(BASE + url, { waitUntil: 'domcontentloaded', timeout: 16000 });
       if (res.status() !== 200) problems.push('Page response: ' + res.status());
       const data = await page.evaluate(() => ({
         width: innerWidth,
@@ -190,7 +193,7 @@ const browserErrors = [];
         if (!checks.archiveHonest) problems.push('Missing image evidence caveat');
       }
       if (name === 'services-hub') {
-        if (await page.locator('main .hubServiceCard').count() !== 8) problems.push('Expected eight service cards');
+        if (await page.locator('main .hubServiceCard').count() !== 9) problems.push('Expected nine service cards, including industrial');
         if (await page.locator('main a[href="emergency-electrician/"]').count()) problems.push('Linked to unpublished emergency service page');
       }
       if (name === 'homepage' || name === 'byron-bay') {
@@ -209,19 +212,28 @@ const browserErrors = [];
           const required = await form.evaluate(el => [...el.querySelectorAll('[required]')].length);
           if (required < 5) problems.push('Expected required type, suburb, name, contact, and details');
           if (await form.locator('select[name="job_type"]').inputValue() !== '') problems.push('Missing blank default job type');
-          if (await form.locator('input[type="file"]').count()) problems.push('Unexpected file input which cannot attach via mailto');
-          if (await form.locator('button[type="submit"]').innerText() !== 'Open email draft') problems.push('Email draft action incorrectly described');
+          const directEnabled=await page.evaluate(()=>window.BERRYMAN_ENQUIRY?.enabled===true);
+          if (await form.locator('input[type="file"]').count() !== 1) problems.push('Photo/PDF picker missing');
+          if (directEnabled) {
+            if (!(await form.locator('[data-online-enquiry]').isVisible())) problems.push('Direct enquiry controls missing');
+            if (!(await form.locator('input[type="file"]').isVisible())) problems.push('Online photo/file picker hidden');
+            if (await form.locator('button[type="submit"]').isVisible()) problems.push('Legacy draft button visible during online delivery');
+            if (await form.locator('[data-online-send]').count() !== 1) problems.push('Direct submit action missing');
+          } else {
+            if (await form.locator('input[type="file"]').isVisible()) problems.push('Unavailable upload picker shown for email draft');
+            if ((await form.locator('button[type="submit"]').innerText()) !== 'Open email draft') problems.push('Email draft action incorrectly described');
+          }
           const invalid = await form.evaluate(el => el.checkValidity());
           if (invalid) problems.push('Empty form should be invalid');
           if (!await page.locator('main').innerText().then(t => t.includes('does not submit enquiries to a server'))) problems.push('Missing transparent mailto disclosure');
           if (view === 'desktop') {
-            for (const [service,expected] of [['switchboard','Switchboard assessment'],['residential','Residential electrical work'],['commercial','Commercial electrical work'],['ev','EV charger installation']]) {
-              await page.goto(BASE + '/contact/?service='+service, {waitUntil:'networkidle'});
+            for (const [service,expected] of [['switchboard','Switchboard assessment'],['residential','Residential electrical work'],['commercial','Commercial electrical work'],['industrial','Industrial electrical work'],['ev','EV charger installation']]) {
+              await page.goto(BASE + '/contact/?service='+service, {waitUntil:'domcontentloaded', timeout:16000});
               if (await form.locator('select[name="job_type"]').inputValue() !== expected) problems.push('Service preselect failed: '+service);
             }
-            await page.goto(BASE + '/contact/?suburb=Byron%20Bay', {waitUntil:'networkidle'});
+            await page.goto(BASE + '/contact/?suburb=Byron%20Bay', {waitUntil:'domcontentloaded', timeout:16000});
             if (await form.locator('input[name="suburb"]').inputValue() !== 'Byron Bay') problems.push('Byron Bay suburb prefill failed');
-            await page.goto(BASE + '/contact/', {waitUntil:'networkidle'});
+            await page.goto(BASE + '/contact/', {waitUntil:'domcontentloaded', timeout:16000});
           }
         }
       }

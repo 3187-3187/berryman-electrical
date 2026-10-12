@@ -749,4 +749,10 @@ footer .footGrid{display:grid;grid-template-columns:1.25fr repeat(3,.75fr);gap:3
   .proHeroSectorList a:first-child{border-left:0}
   .proHeroSectorList a:last-child{border-right:0}
 }
+/* Compact first-screen credentials for mobile without losing trust signals. */
+@media(max-width:640px){
+  .homeProfessional .trust.trustCompact .trustItem{padding:9px 11px}
+  .homeProfessional .trust.trustCompact .trustItem b{font-size:12px;line-height:1.32}
+  .homeProfessional .trust.trustCompact .trustItem span{font-size:8px;line-height:1.35}
+}
 @media(prefers-reduced-motion:reduce){.proHeroSectorList a{transition:none}}

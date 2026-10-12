@@ -20,7 +20,7 @@ const report=[];
      status:200,contentType:'application/javascript',
      body:'window.turnstile={render:()=>1,reset:()=>{}};'
    }));
-   await page.goto(ROOT+'/contact/?service=lighting',{waitUntil:'networkidle'});
+   await page.goto(ROOT+'/contact/?service=lighting',{waitUntil:'domcontentloaded',timeout:16000});
    const enabled=await page.evaluate(()=>window.BERRYMAN_ENQUIRY?.enabled===true);
    if(enabled){
      if(!(await page.locator('[data-online-enquiry]').isVisible()))errors.push('Online enquiry is hidden in preview');
@@ -60,7 +60,7 @@ const report=[];
      await route.fulfill({status:responseCode,contentType:'application/json',
        body:JSON.stringify(responseCode===200?{ok:true,message:'Accepted'}:{ok:false,error:'Not delivered'})});
    });
-   await page.goto(ROOT+'/contact/?service=lighting',{waitUntil:'networkidle'});
+   await page.goto(ROOT+'/contact/?service=lighting',{waitUntil:'domcontentloaded',timeout:16000});
    await page.locator('[data-online-enquiry]').waitFor({state:'visible'});
    await page.waitForFunction(()=>document.querySelector('[data-online-send]')?.disabled===false);
    if(await page.locator('select[name="job_type"]').inputValue()!=='Lighting / power / fans')errors.push('Wrong service prefilling');
