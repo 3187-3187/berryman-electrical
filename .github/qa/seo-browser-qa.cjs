@@ -137,8 +137,10 @@ const browserErrors = [];
           if (invalid) problems.push('Empty form should be invalid');
           if (!await page.locator('main').innerText().then(t => t.includes('does not submit enquiries to a server'))) problems.push('Missing transparent mailto disclosure');
           if (view === 'desktop') {
-            await page.goto(BASE + '/contact/?service=switchboard', {waitUntil:'networkidle'});
-            if (await form.locator('select[name="job_type"]').inputValue() !== 'Switchboard assessment') problems.push('Service preselect failed');
+            for (const [service,expected] of [['switchboard','Switchboard assessment'],['residential','Residential electrical work'],['commercial','Commercial electrical work']]) {
+              await page.goto(BASE + '/contact/?service='+service, {waitUntil:'networkidle'});
+              if (await form.locator('select[name="job_type"]').inputValue() !== expected) problems.push('Service preselect failed: '+service);
+            }
             await page.goto(BASE + '/contact/', {waitUntil:'networkidle'});
           }
         }
