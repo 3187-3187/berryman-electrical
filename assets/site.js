@@ -10,6 +10,7 @@
  const enquiry=document.querySelector('form[data-email-enquiry]');
  if(enquiry){
    const types={
+     residential:'Residential electrical work',
      fault:'Fault finding / repair',
      switchboard:'Switchboard assessment',
      lighting:'Lighting / power / fans',
