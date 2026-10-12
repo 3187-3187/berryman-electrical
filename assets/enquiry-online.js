@@ -15,11 +15,15 @@
   const challenge = form.querySelector('[data-turnstile-widget]');
   const fallback = form.querySelector('[data-draft-explanation]');
   const heading = form.querySelector('[data-form-heading]');
+  const draftSubmit = form.querySelector('button[type="submit"]');
+  // Once online submission is truly enabled, the in-house form is primary.
+  // Visitors still have a plain email link and phone number if delivery fails.
+  if (draftSubmit) draftSubmit.hidden = true;
   if (!block || !button || !status || !challenge) return;
   block.hidden = false;
   if (heading) heading.textContent = 'Send an electrical enquiry';
   if (fallback) fallback.textContent =
-    'Choose Send enquiry online once verification is ready, or use Open email draft. Your email app must be used to send a draft; no job is booked automatically.';
+    'Fill in the details, complete the security check and press Send enquiry online. No email app is needed. This does not confirm a booking.';
 
   let widgetId = null;
   let token = '';
