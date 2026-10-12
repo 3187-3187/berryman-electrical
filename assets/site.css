@@ -258,7 +258,7 @@ footer a{display:block;font-size:13px;margin:7px 0}
 
 
 .seoAreaLinks{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px}
-.seoAreaLinks a{display:inline-flex;align-items:center;padding:9px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:13px;font-weight:850}
+.seoAreaLinks a{display:inline-flex;align-items:center;padding:9px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#102033;font-size:13px;font-weight:850}
 .dark .seoAreaLinks a{background:#0c1928;border-color:rgba(255,255,255,.14);color:#fff}
 .localityCloud{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
 .localityCloud span{display:inline-flex;padding:8px 10px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:12px;font-weight:800;color:#506073}
