@@ -1,0 +1,80 @@
+/* Browser-only preview test. It intercepts all Turnstile and API traffic.
+ * No real customer data and no email provider is contacted.
+ */
+const { chromium } = require('playwright');
+const fs = require('fs');
+const path = require('path');
+const ROOT = 'http://127.0.0.1:8765';
+const out = 'qa-output';
+fs.mkdirSync(out, {recursive:true});
+const report=[];
+(async()=>{
+ const browser = await chromium.launch({headless:true});
+ for(const width of [390,1440]){
+   const page=await browser.newPage({viewport:{width,height:850}});
+   const errors=[];
+   page.on('pageerror',e=>errors.push(e.message));
+   await page.goto(ROOT+'/contact/?service=lighting',{waitUntil:'networkidle'});
+   if(await page.locator('[data-online-enquiry]').isVisible())errors.push('Online service visible with default disabled config');
+   if(!(await page.locator('form button[type="submit"]').isVisible()))errors.push('Manual draft fallback not visible');
+   if(await page.locator('form [data-online-send]').isVisible())errors.push('Inactive online-send button visible');
+   report.push({case:'disabled default / '+width,errors:[...errors]});
+   if(errors.length)throw Error(report[report.length-1].case+': '+errors.join(' | '));
+   await page.close();
+ }
+ for(const width of [390,1440]){
+   const page=await browser.newPage({viewport:{width,height:850}});
+   const errors=[];
+   page.on('pageerror',e=>errors.push(e.message));
+   let responseCode=503;
+   const posts=[];
+   await page.route('**/assets/enquiry-config.js',route=>route.fulfill({
+     status:200,contentType:'application/javascript',
+     body:'window.BERRYMAN_ENQUIRY={enabled:true,turnstileSiteKey:"0x4AAAAAAAmockpublickey"};'
+   }));
+   await page.route('https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit',route=>route.fulfill({
+     status:200,contentType:'application/javascript',
+     body:"window.turnstile={render:function(el,opts){window.__mockTurnstile=opts;setTimeout(function(){opts.callback('mock-site-token');},10);return 1;},reset:function(){setTimeout(function(){window.__mockTurnstile.callback('new-mock-token');},10);}};"
+   }));
+   await page.route('**/api/enquiry',async route=>{
+     const req=route.request();
+     if(req.method()!=='POST')errors.push('Online request not POST');
+     try{posts.push(req.postDataJSON())}catch{errors.push('Invalid JSON payload')}
+     await route.fulfill({status:responseCode,contentType:'application/json',
+       body:JSON.stringify(responseCode===200?{ok:true,message:'Accepted'}:{ok:false,error:'Not delivered'})});
+   });
+   await page.goto(ROOT+'/contact/?service=lighting',{waitUntil:'networkidle'});
+   await page.locator('[data-online-enquiry]').waitFor({state:'visible'});
+   await page.waitForFunction(()=>document.querySelector('[data-online-send]')?.disabled===false);
+   if(await page.locator('select[name="job_type"]').inputValue()!=='Lighting / power / fans')errors.push('Wrong service prefilling');
+   if(!(await page.locator('form button[type="submit"]').isVisible()))errors.push('No manual email fallback');
+   await page.locator('input[name="suburb"]').fill('Byron Bay');
+   await page.locator('input[name="name"]').fill('Test Person');
+   await page.locator('input[name="contact"]').fill('test@example.net');
+   await page.locator('textarea[name="job_details"]').fill('Install two new ceiling fans in the living room');
+   await page.locator('[data-online-send]').click();
+   await page.waitForFunction(()=>document.querySelector('[data-online-status]')?.textContent.includes('could not be confirmed'));
+   if(await page.locator('input[name="name"]').inputValue()!=='Test Person')errors.push('Form lost input after unsuccessful send');
+   if(posts.length!==1)errors.push('Expected exactly one failed POST');
+   responseCode=200;
+   await page.waitForFunction(()=>document.querySelector('[data-online-send]')?.disabled===false);
+   await page.locator('[data-online-send]').click();
+   await page.waitForFunction(()=>document.querySelector('[data-online-status]')?.textContent.includes('accepted for email delivery'));
+   if(posts.length!==2)errors.push('Expected a single retry POST');
+   if(posts[0]?.jobType!=='Lighting / power / fans')errors.push('Incorrect posted service');
+   if(posts[1]?.turnstileToken!=='new-mock-token')errors.push('Did not renew verification token');
+   if(await page.locator('input[name="name"]').inputValue()!=='')errors.push('Successful send did not reset details');
+   if(await page.locator('[data-online-send]').isEnabled())errors.push('Duplicate online submit still enabled');
+   if(page.url().includes('test@example.net'))errors.push('Contact data leaked into URL');
+   await page.screenshot({path:path.join(out,'contact-online-mocked-'+width+'.png')});
+   report.push({case:'mocked failure and success / '+width,errors:[...errors],posted:posts.length});
+   if(errors.length)throw Error(report[report.length-1].case+': '+errors.join(' | '));
+   await page.close();
+ }
+ await browser.close();
+ const md=['# Staged Contact enhancement browser QA','','- Disabled by default, manual mail draft present at mobile/desktop','- Mocked Turnstile client and API (no real emails)','- Failure leaves inputs intact; retry uses new token; acceptance prevents duplicate submits','','| Scenario | Result |','|---|---|'];
+ for(const r of report)md.push('| '+r.case+' | '+(r.errors.length?'FAIL: '+r.errors.join(', '):'PASS')+' |');
+ fs.writeFileSync(path.join(out,'contact-online-qa.md'),md.join('\n'));
+ if(process.env.GITHUB_STEP_SUMMARY)fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,md.join('\n')+'\n');
+ console.log(report.map(r=>r.case+' '+(r.errors.length?'FAIL':'PASS')).join('\n'));
+})().catch(e=>{console.error(e);process.exitCode=1;});
