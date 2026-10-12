@@ -514,3 +514,62 @@ footer .footGrid{display:grid;grid-template-columns:1.25fr repeat(3,.75fr);gap:3
  .localAreaPage .realPhoto img{height:290px}
  .localAreaPage .pageHero .heroActions .btn{max-width:100%;white-space:normal;text-align:center}
 }
+
+
+/* SEO Batch 6 — residential and commercial service owner pages */
+.serviceCategoryPage .pageHero h1{max-width:990px}
+.serviceCategoryPage .pageHeroCopy{max-width:890px;font-size:18px;line-height:1.65}
+.serviceCategoryPage .section{padding:76px 0}
+.serviceCategoryPage .section h2,.serviceCategoryPage .photoProof h2{font-size:clamp(32px,4vw,48px);max-width:920px}
+.serviceCategoryPage .section .lead{line-height:1.65}
+.serviceCategoryPage .scopeGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:30px}
+.scopeCard{min-height:215px;padding:24px;background:#fff;border:1px solid var(--line);border-radius:20px}
+.scopeCard h3{font-size:20px;letter-spacing:-.025em;line-height:1.25;margin:0 0 10px}
+.scopeCard p{font-size:14px;line-height:1.62;color:#586a7d;margin:0}
+.serviceCategoryPage .scopeSplit{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(290px,.85fr);gap:42px;align-items:start}
+.serviceCategoryPage .scopeConsiderationGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:28px}
+.scopeConsideration{border-top:2px solid #d8bf6c;padding:19px 0 0}
+.scopeConsideration h3{font-size:19px;line-height:1.25;margin:0 0 9px}
+.scopeConsideration p{font-size:14px;line-height:1.6;color:#5d6c7d;margin:0}
+.scopeAside{background:var(--navy2);color:#fff;border-radius:25px;padding:34px}
+.scopeAside .kicker{color:#f5d575}
+.scopeAside h3{font-size:29px;line-height:1.15;letter-spacing:-.038em;margin:12px 0}
+.scopeAside p{font-size:14px;color:#c3ced8;line-height:1.65}
+.scopeAside .btn{max-width:100%;white-space:normal;text-align:center;margin-top:16px}
+.scopeAsidePhone{display:block;color:#fff;font-size:15px;font-weight:850;text-decoration:underline;text-underline-offset:3px;margin-top:20px}
+.serviceCategoryPage .realPhotoGrid{margin-bottom:24px}
+.serviceCategoryPage .realPhoto figcaption{line-height:1.55}
+.serviceCategoryPage .process{margin:30px 0}
+.serviceCategoryPage .step h3{font-size:17px;line-height:1.3;margin:16px 0 7px}
+.serviceCategoryPage .step p{font-size:13px;line-height:1.6}
+.scopePricing{display:flex;gap:30px;align-items:center;justify-content:space-between;border:1px solid #dbe3e9;background:#f7f9fa;border-radius:20px;padding:24px 27px;margin-top:28px}
+.scopePricing>div{max-width:780px}
+.scopePricing h3{font-size:21px;margin:0 0 7px;line-height:1.3}
+.scopePricing p{font-size:14px;color:#627185;line-height:1.6;margin:0}
+.scopePricing .btn{flex-shrink:0;white-space:normal;text-align:center}
+.serviceCategoryPage .scopeRelatedGrid{margin-top:26px}
+.scopeRelatedItem{border-top:1px solid #d8dfe4;padding:17px 0}
+.scopeRelatedItem h3{font-size:19px;margin:0 0 6px;line-height:1.3}
+.scopeRelatedItem p{color:#596d7e;font-size:14px;line-height:1.6;margin:0}
+.scopeRelatedItem a{text-decoration:underline;text-underline-offset:3px;font-weight:850;color:#152f49}
+.serviceCategoryPage .feature{min-height:0}
+.serviceCategoryPage .staticFaq{max-width:920px}
+.serviceCategoryPage .areaPanel{align-items:start}
+.serviceCategoryPage .areaPanel .heroActions{margin-top:25px}
+@media(max-width:980px){
+ .serviceCategoryPage .scopeGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .serviceCategoryPage .scopeSplit,.serviceCategoryPage .areaPanel{grid-template-columns:1fr;gap:28px}
+ .scopeAside{max-width:100%}
+}
+@media(max-width:640px){
+ .serviceCategoryPage .section{padding:54px 0}
+ .serviceCategoryPage .pageHero h1{font-size:clamp(38px,10.2vw,49px)}
+ .serviceCategoryPage .scopeGrid,.serviceCategoryPage .scopeConsiderationGrid{grid-template-columns:1fr}
+ .scopeCard{min-height:0;padding:22px}
+ .scopeAside{padding:25px}
+ .scopePricing{flex-direction:column;align-items:stretch;padding:22px}
+ .scopePricing .btn{width:100%}
+ .serviceCategoryPage .feature{padding:27px}
+ .serviceCategoryPage .realPhoto img{height:285px}
+ .serviceCategoryPage .pageHero .heroActions .btn{max-width:100%;white-space:normal;text-align:center}
+}
