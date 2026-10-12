@@ -6,7 +6,9 @@ const PAGES = [
   ['homepage', '/'],
   ['byron-bay', '/areas/electrician-byron-bay/'],
   ['fault-finding', '/services/fault-finding-electrical-repairs/'],
-  ['switchboard-upgrades', '/services/switchboard-upgrades/']
+  ['switchboard-upgrades', '/services/switchboard-upgrades/'],
+  ['services-hub', '/services/'],
+  ['contact', '/contact/']
 ];
 const VIEWS = [
   ['mobile', 390, 844],
@@ -54,6 +56,29 @@ const browserErrors = [];
         const sticky = page.locator('.mobileStickyActions:visible, .mobileBar:visible');
         if (await sticky.count() !== 1) problems.push('Expected exactly one visible mobile CTA bar; found ' + await sticky.count());
       }
+      if (name === 'services-hub') {
+        if (await page.locator('main .hubServiceCard').count() !== 8) problems.push('Expected eight service cards');
+        if (await page.locator('main a[href="emergency-electrician/"]').count()) problems.push('Linked to unpublished emergency service page');
+      }
+      if (name === 'contact') {
+        const form = page.locator('form[data-email-enquiry]');
+        if (await form.count() !== 1) problems.push('Contact enquiry form missing');
+        else {
+          const required = await form.evaluate(el => [...el.querySelectorAll('[required]')].length);
+          if (required < 5) problems.push('Expected required type, suburb, name, contact, and details');
+          if (await form.locator('select[name="job_type"]').inputValue() !== '') problems.push('Missing blank default job type');
+          if (await form.locator('input[type="file"]').count()) problems.push('Unexpected file input which cannot attach via mailto');
+          if (await form.locator('button[type="submit"]').innerText() !== 'Open email draft') problems.push('Email draft action incorrectly described');
+          const invalid = await form.evaluate(el => el.checkValidity());
+          if (invalid) problems.push('Empty form should be invalid');
+          if (!await page.locator('main').innerText().then(t => t.includes('does not submit enquiries to a server'))) problems.push('Missing transparent mailto disclosure');
+          if (view === 'desktop') {
+            await page.goto(BASE + '/contact/?service=switchboard', {waitUntil:'networkidle'});
+            if (await form.locator('select[name="job_type"]').inputValue() !== 'Switchboard assessment') problems.push('Service preselect failed');
+            await page.goto(BASE + '/contact/', {waitUntil:'networkidle'});
+          }
+        }
+      }
       const firstFaq = page.locator('main details').first();
       if (await firstFaq.count()) {
         await firstFaq.locator('summary').click();
@@ -96,7 +121,7 @@ const browserErrors = [];
   fs.writeFileSync(path.join(output,'qa-report.json'),JSON.stringify(results,null,2));
   const lines=['# Berryman Electrical — SEO branch browser QA','', 'Tested '+new Date().toISOString(), '', '| Page | Viewport | Result |', '|---|---|---|'];
   for(const r of results) lines.push('| '+r.page+' | '+r.viewport+' ('+r.width+'px) | '+(r.problems.length?r.problems.join('; '):'PASS')+' |');
-  lines.push('', 'Checks: actual Chromium rendering, title/canonical/H1, mobile nav, mobile sticky CTA, FAQ interaction, lazy-image loading, horizontal overflow, JS errors, and internal links.', '');
+  lines.push('', 'Checks: actual Chromium rendering, title/canonical/H1, mobile nav, mobile sticky CTA, FAQ interaction, contact form requirements/service prefilling, lazy-image loading, horizontal overflow, JS errors, and internal links.', '');
   fs.writeFileSync(path.join(output,'qa-report.md'),lines.join('\n'));
   if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,lines.join('\n')+'\n');
   if (failed) process.exitCode=1;
