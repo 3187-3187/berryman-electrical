@@ -4,6 +4,7 @@ import { onRequestPost, onRequestGet } from '../functions/api/enquiry.js';
 
 const HOST='https://preview.example.com';
 const env={
+  FORM_ENABLE_SEND:'true',
   FORM_TURNSTILE_SECRET:'unit-test-secret',
   FORM_RESEND_API_KEY:'unit-test-provider-key',
   FORM_EMAIL_FROM:'Website <enquiries@example.com>',
@@ -24,6 +25,11 @@ function req(changes={}, headers={}) {
 const ctx=(request,settings=env)=>({request,env:settings});
 const json=async response=>({status:response.status,body:await response.json()});
 
+test('cannot send when explicit server release flag is disabled', async()=>{
+  const res=await json(await onRequestPost(ctx(req(),{...env,FORM_ENABLE_SEND:'false'})));
+  assert.equal(res.status,503);
+  assert.equal(res.body.ok,false);
+});
 test('fails closed if email and bot-check secrets are missing',async()=>{
   const result=await json(await onRequestPost(ctx(req(),{})));
   assert.equal(result.status,503);
