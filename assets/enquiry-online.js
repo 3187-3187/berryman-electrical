@@ -129,7 +129,19 @@
         if (draft) draft.hidden = true;
       } else {
         hasError = true;
-        state('Online delivery could not be confirmed. Your details are still here. Please retry or use the email draft or phone.', true);
+        // Explain known, safe server-side validation/configuration failures to the customer.
+        // Keep a generic message for unexpected responses, and preserve the retry guidance.
+        const knownReasons = new Set([
+          'Online enquiries are not enabled. Please call or email directly.',
+          'Online enquiries are unavailable. Please call or email directly.',
+          'Please complete the required enquiry details.',
+          'Verification failed. Please try again.',
+          'Verification unavailable. Try again later.',
+          'We could not deliver your enquiry. Please call or email directly.',
+          'Email provider acceptance could not be confirmed. Please contact us directly.'
+        ]);
+        const reason = knownReasons.has(body?.error) ? body.error + ' ' : '';
+        state(reason + 'Online delivery could not be confirmed. Your details are still here. Please retry or use the email draft or phone.', true);
       }
     } catch {
       hasError = true;
