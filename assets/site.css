@@ -781,7 +781,7 @@ footer .footGrid{display:grid;grid-template-columns:1.25fr repeat(3,.75fr);gap:3
 }
 .specialistPage.industrial-electrician .pageHero{
   background-image:
-    linear-gradient(90deg,rgba(7,17,29,.79) 0%,rgba(7,17,29,.40) 66%,rgba(7,17,29,.14) 100%),
+    linear-gradient(90deg,rgba(7,17,29,.69) 0%,rgba(7,17,29,.30) 66%,rgba(7,17,29,.08) 100%),
     url("photos/industrial-hero.webp");
 }
 .serviceCategoryPage.commercial-electrician .pageHero>.wrap,
@@ -815,7 +815,8 @@ footer .footGrid{display:grid;grid-template-columns:1.25fr repeat(3,.75fr);gap:3
     background-image:linear-gradient(90deg,rgba(7,17,29,.91),rgba(7,17,29,.75)),url("photos/commercial-hero.webp")
   }
   .specialistPage.industrial-electrician .pageHero{
-    background-image:linear-gradient(90deg,rgba(7,17,29,.92),rgba(7,17,29,.72)),url("photos/industrial-hero.webp")
+    /* The artwork already includes a dark navy treatment: lift the mobile image without changing brand colours. */
+    background-image:linear-gradient(90deg,rgba(7,17,29,.78) 0%,rgba(7,17,29,.57) 60%,rgba(7,17,29,.40) 100%),url("photos/industrial-hero.webp")
   }
   .serviceCategoryPage.commercial-electrician .pageHero h1,
   .specialistPage.industrial-electrician .pageHero h1{
