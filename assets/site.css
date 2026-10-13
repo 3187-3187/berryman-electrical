@@ -879,3 +879,11 @@ footer .footGrid{display:grid;grid-template-columns:1.25fr repeat(3,.75fr);gap:3
   .photoServiceGrid .photoServiceCard p{font-size:14px;line-height:1.53}
 }
 @media(prefers-reduced-motion:reduce){.photoServiceGrid .photoServiceCard{transition:none}}
+
+/* EV-specific photo cards: genuine Berryman installations. */
+.photoServiceGrid .photoEvWall{--card-photo:url("photos/ev-tesla-brick-install.webp")}
+.photoServiceGrid .photoEvSupply{--card-photo:url("photos/old-ceramic-board.webp")}
+.photoServiceGrid .photoEvRoute{--card-photo:url("photos/ev-installer-wall-connector.webp")}
+.photoServiceGrid .photoEvVehicle{--card-photo:url("photos/ev-tesla-car-garage.webp")}
+.photoServiceGrid .photoEvLoad{--card-photo:url("photos/ev-tesla-dual-install.webp")}
+.photoServiceGrid .photoEvWorkplace{--card-photo:url("photos/ev-tesla-garage-wide.webp")}
