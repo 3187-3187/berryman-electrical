@@ -19,6 +19,7 @@
   const attachmentField = form.querySelector('[data-online-attachments]');
   const attachmentInput = form.querySelector('input[name="attachments"]');
   const attachmentStatus = form.querySelector('[data-attachment-status]');
+  const chooseFilesButton = form.querySelector('[data-choose-files]');
   const MAX_FILES = 4;
   const MAX_FILE_BYTES = 5 * 1024 * 1024;
   const MAX_TOTAL_BYTES = 10 * 1024 * 1024;
@@ -67,6 +68,58 @@
     return !error;
   };
   if (attachmentInput) attachmentInput.addEventListener('change', validateFiles);
+
+  // In Chromium browsers offering the File System Access API, this opens the
+  // native Files picker directly, without the Camera / Files action sheet.
+  // Other browsers retain the standard accessible file input.
+  // Keep the input itself as the source of truth for existing validation,
+  // attachment serialization and email delivery.
+  if (attachmentInput && chooseFilesButton &&
+      typeof window.showOpenFilePicker === 'function' &&
+      typeof window.DataTransfer === 'function') {
+    attachmentInput.hidden = true;
+    const uploadLabel = attachmentField?.querySelector('label[for="job-attachments"]');
+    if (uploadLabel) uploadLabel.removeAttribute('for');
+    chooseFilesButton.hidden = false;
+
+    chooseFilesButton.addEventListener('click', async () => {
+      try {
+        // Invoke this from the user's click, before any asynchronous work.
+        const handles = await window.showOpenFilePicker({
+          multiple: true,
+          types: [{
+            description: 'Photos and PDF documents',
+            accept: {
+              'image/jpeg': ['.jpg', '.jpeg'],
+              'image/png': ['.png'],
+              'image/webp': ['.webp'],
+              'image/heic': ['.heic'],
+              'image/heif': ['.heif'],
+              'application/pdf': ['.pdf'],
+            }
+          }]
+        });
+        if (!handles.length) return;
+        const selected = new DataTransfer();
+        for (const handle of handles) selected.items.add(await handle.getFile());
+        attachmentInput.files = selected.files;
+        validateFiles();
+      } catch (error) {
+        // Cancelling the picker must preserve existing selected files.
+        if (error?.name === 'AbortError') return;
+        // An unsupported picker should never block enquiry submissions.
+        // Restore the browser's native picker as the fallback.
+        chooseFilesButton.hidden = true;
+        attachmentInput.hidden = false;
+        if (uploadLabel) uploadLabel.setAttribute('for', 'job-attachments');
+        if (attachmentStatus) {
+          attachmentStatus.textContent = 'Use the standard file selector below to attach your photos or PDF documents.';
+          attachmentStatus.dataset.state = 'info';
+        }
+      }
+    });
+  }
+
   const readBase64 = file => new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = () => reject(new Error('File could not be read'));

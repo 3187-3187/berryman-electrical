@@ -216,7 +216,18 @@ const browserErrors = [];
           if (await form.locator('input[type="file"]').count() !== 1) problems.push('Photo/PDF picker missing');
           if (directEnabled) {
             if (!(await form.locator('[data-online-enquiry]').isVisible())) problems.push('Direct enquiry controls missing');
-            if (!(await form.locator('input[type="file"]').isVisible())) problems.push('Online photo/file picker hidden');
+            const hasDirectFiles = await page.evaluate(() =>
+              typeof window.showOpenFilePicker === 'function' &&
+              typeof window.DataTransfer === 'function');
+            const nativeFile = form.locator('input[type="file"]');
+            const directFile = form.locator('[data-choose-files]');
+            if (hasDirectFiles) {
+              if (!(await directFile.isVisible())) problems.push('Direct Files picker button missing');
+              if (await nativeFile.isVisible()) problems.push('Native camera chooser must be hidden when direct Files is available');
+            } else {
+              if (!(await nativeFile.isVisible())) problems.push('Standard upload fallback not visible');
+              if (await directFile.isVisible()) problems.push('Direct picker button shown without API support');
+            }
             if (await form.locator('button[type="submit"]').isVisible()) problems.push('Legacy draft button visible during online delivery');
             if (await form.locator('[data-online-send]').count() !== 1) problems.push('Direct submit action missing');
           } else {

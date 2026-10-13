@@ -936,3 +936,16 @@ footer .footGrid{display:grid;grid-template-columns:1.25fr repeat(3,.75fr);gap:3
 .whyClose{padding-bottom:36px}.whyClosePanel{padding:28px 24px}.whyClosePanel h2{font-size:clamp(30px,8vw,38px)}
 .whyClosePanel p{font-size:14px}.whyCloseActions{display:grid;grid-template-columns:1fr}.whyCloseActions .btn{width:100%;min-height:44px}
 }
+
+/* Direct Files selection for supported Chrome browsers. Keep native fallback. */
+.enquiryAttachments [data-choose-files][hidden],
+.enquiryAttachments input[type=file][hidden]{display:none!important}
+.enquiryAttachments .enquiryBrowseFiles{
+ display:inline-flex;align-items:center;justify-content:center;
+ padding:12px 19px;min-height:46px;max-width:100%;
+ border:1px solid #10243a;border-radius:11px;background:#10243a;
+ color:#fff;font-size:14px;font-weight:850;cursor:pointer;
+}
+.enquiryAttachments .enquiryBrowseFiles:focus-visible{
+ outline:3px solid #eebc3c;outline-offset:3px;
+}

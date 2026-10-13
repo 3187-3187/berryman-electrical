@@ -64,7 +64,8 @@
   <input type="file" id="job-attachments" name="attachments" multiple
     accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf,.jpg,.jpeg,.png,.webp,.heic,.heif,.pdf"
     aria-describedby="job-attachments-help job-attachments-status">
-  <p id="job-attachments-help" class="note">Photos or PDF documents. Up to 4 files, 5 MB each (10 MB total). Only take photos where it is safe.</p>
+  <button class="enquiryBrowseFiles" type="button" data-choose-files hidden aria-describedby="job-attachments-help job-attachments-status">Choose files</button>
+  <p id="job-attachments-help" class="note">Choose existing photos or PDF documents. Up to 4 files, 5 MB each (10 MB total). Only take photos where it is safe.</p>
   <p id="job-attachments-status" data-attachment-status role="status" aria-live="polite"></p>
 </div>
 <div class="enquiryOnline" data-online-enquiry hidden>
