@@ -887,3 +887,52 @@ footer .footGrid{display:grid;grid-template-columns:1.25fr repeat(3,.75fr);gap:3
 .photoServiceGrid .photoEvVehicle{--card-photo:url("photos/ev-tesla-car-garage.webp")}
 .photoServiceGrid .photoEvLoad{--card-photo:url("photos/ev-tesla-dual-install.webp")}
 .photoServiceGrid .photoEvWorkplace{--card-photo:url("photos/ev-tesla-garage-wide.webp")}
+
+
+/* Why Berryman redesign: real photo hero and clear practical benefits. */
+.whyPage{background:var(--paper)}
+.whyHero{background:#07111d;color:white;position:relative;isolation:isolate;overflow:hidden;background-image:linear-gradient(90deg,rgba(7,17,29,.98),rgba(7,17,29,.93) 37%,rgba(7,17,29,.65) 73%,rgba(7,17,29,.32)),url("photos/hero-electrician.webp");background-size:cover;background-position:right 36%;border-bottom:1px solid rgba(239,194,65,.24)}
+.whyHero:after{content:"";position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(120deg,transparent 62%,rgba(239,194,65,.12) 62.1%,transparent 62.2%),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:100% 100%,90px 100%}
+.whyHeroInner{position:relative;z-index:1;min-height:550px;display:flex;align-items:center;padding:69px 0}
+.whyHeroText{max-width:735px}.whyHero .breadcrumb{margin-bottom:26px;color:#c6d2de}
+.whyHero h1{font-size:clamp(46px,5.4vw,70px);line-height:1.05;letter-spacing:-.052em;max-width:790px;margin:18px 0 24px;text-wrap:balance}
+.whyHero h1 span{color:#f0cc79}.whyHeroLead{font-size:clamp(17px,1.6vw,20px);line-height:1.55;color:#f3f5f7;margin:0 0 13px}
+.whyHeroSupport{font-size:15px;line-height:1.61;color:#cbd5df;margin:0}.whyHeroSupport strong{color:white}
+.whyBenefits{padding:22px 0 44px}.whyBenefitGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.whyBenefit{min-height:345px;padding:25px;border-radius:21px;overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:start;justify-content:space-between;color:white;border:1px solid rgba(239,194,65,.24);background:#07111d;background-image:linear-gradient(180deg,rgba(7,17,29,.46),rgba(7,17,29,.86)),var(--why-photo);background-size:cover;background-position:var(--why-pos,center)}
+.why-diagnose{--why-photo:url("photos/commercial-testing.webp");--why-pos:50% 35%}
+.why-speak{--why-photo:url("photos/commercial-controls.webp");--why-pos:52% 40%}
+.why-local{background-image:linear-gradient(140deg,#07111d,#0c2438 55%,#172c39),repeating-radial-gradient(ellipse at 90% 88%,rgba(239,194,65,.12) 0 1px,transparent 2px 27px)}
+.why-local:after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-radial-gradient(ellipse at 100% 100%,transparent 0 24px,rgba(239,194,65,.12) 25px 26px,transparent 27px 45px)}
+.whyIcon{display:grid;place-items:center;flex:0 0 auto;width:52px;height:52px;border-radius:50%;border:1px solid rgba(239,194,65,.3);background:rgba(239,194,65,.16);color:#f0ca65}
+.whyBenefitCopy{position:relative;z-index:1;padding-top:25px}
+.whyBenefit h2{font-size:clamp(21px,2.4vw,27px);line-height:1.15;letter-spacing:-.035em;margin:0 0 11px}
+.whyBenefit p{font-size:14px;color:#e1e8ee;line-height:1.54;margin:0}.whyBenefit .whyBenefitTag{font-size:13px;font-weight:850;color:#f0cf80;margin-bottom:11px}
+.whyRealWork{padding:0 0 21px}.whyRealPanel{display:grid;grid-template-columns:1.05fr .95fr;gap:33px;align-items:center;background:#f2eee5;padding:32px;border-radius:23px}
+.whyRealText h2{font-size:clamp(36px,4.3vw,54px);line-height:1.06;margin:12px 0 18px}.whyRealText h2 span{color:#95721d}
+.whyRealText p{font-size:16px;line-height:1.58;color:#596a7a}
+.whyTextLink{display:inline-flex;gap:8px;margin-top:9px;padding-bottom:6px;border-bottom:2px solid #b18a26;font-size:14px;font-weight:900}
+.whyRealFigure{margin:0}.whyRealFigure img{display:block;width:100%;height:345px;object-fit:cover;object-position:center 43%;border-radius:17px}
+.whyRealFigure figcaption{font-size:12px;color:#5d6e80;margin-top:9px}
+.whyProof{padding:0 0 19px}.whyProofGrid{background:#07111d;border:1px solid rgba(239,194,65,.24);color:#fff;border-radius:22px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:23px 14px}
+.whyProofItem{padding:10px 17px;border-right:1px solid rgba(255,255,255,.14);min-width:0}.whyProofItem:last-child{border:0}
+.whyProofNum{display:block;font-size:11px;font-weight:950;letter-spacing:.12em;color:#edc66b;margin-bottom:11px}
+.whyProofItem strong{display:block;font-size:16px;line-height:1.25}.whyProofItem p{color:#b9c6d3;line-height:1.55;font-size:12px;margin:9px 0 0}
+.whyClose{padding:0 0 66px}.whyClosePanel{border-radius:23px;color:white;padding:38px 43px;border:1px solid rgba(239,194,65,.2);background:#07111d;background-image:linear-gradient(90deg,rgba(7,17,29,.98),rgba(7,17,29,.87) 65%,rgba(7,17,29,.53)),url("photos/industrial-hero.webp");background-size:cover;background-position:center}
+.whyClosePanel .kicker{color:#f0ca70}.whyClosePanel h2{max-width:690px;font-size:clamp(32px,3.8vw,49px);line-height:1.1;margin:14px 0}
+.whyClosePanel p{font-size:16px;color:#d2dce5;max-width:650px}.whyCloseActions{display:flex;gap:11px;flex-wrap:wrap;margin-top:23px}
+@media(max-width:980px){.whyBenefitGrid{grid-template-columns:1fr}.whyBenefit{min-height:215px}.whyRealPanel{grid-template-columns:1fr 1fr}.whyProofGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.whyProofItem:nth-child(2){border:0}.whyProofItem:nth-child(-n+2){border-bottom:1px solid rgba(255,255,255,.14)}}
+@media(max-width:640px){
+.whyHero{background-image:linear-gradient(90deg,rgba(7,17,29,.95),rgba(7,17,29,.79) 62%,rgba(7,17,29,.52)),url("photos/hero-electrician.webp");background-position:63% 40%}
+.whyHeroInner{min-height:0;padding:42px 0 46px}.whyHero h1{font-size:clamp(35px,9vw,43px);line-height:1.08;margin:16px 0 21px}
+.whyHeroLead{font-size:16px;line-height:1.5}.whyHeroSupport{font-size:14px;line-height:1.56}.whyHero .breadcrumb{margin-bottom:25px}
+.whyBenefits{padding:13px 0 24px}.whyBenefitGrid{gap:11px}.whyBenefit{min-height:220px;padding:21px}
+.whyIcon{width:43px;height:43px}.whyIcon svg{width:21px;height:21px}.whyBenefitCopy{padding-top:18px}
+.whyBenefit h2{font-size:23px;margin-bottom:8px}.whyBenefit p{font-size:13px;line-height:1.49}.whyBenefit .whyBenefitTag{font-size:12px;margin-bottom:8px}
+.whyRealWork{padding-bottom:14px}.whyRealPanel{grid-template-columns:1fr;gap:19px;padding:23px}
+.whyRealText h2{font-size:clamp(33px,8.6vw,42px)}.whyRealText p{font-size:15px}.whyRealFigure img{height:270px}
+.whyProof{padding-bottom:14px}.whyProofGrid{padding:13px 10px}
+.whyProofItem{padding:12px}.whyProofItem strong{font-size:13px}.whyProofItem p{font-size:11px}
+.whyClose{padding-bottom:36px}.whyClosePanel{padding:28px 24px}.whyClosePanel h2{font-size:clamp(30px,8vw,38px)}
+.whyClosePanel p{font-size:14px}.whyCloseActions{display:grid;grid-template-columns:1fr}.whyCloseActions .btn{width:100%;min-height:44px}
+}
