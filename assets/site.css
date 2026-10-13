@@ -827,3 +827,55 @@ footer .footGrid{display:grid;grid-template-columns:1.25fr repeat(3,.75fr);gap:3
   .serviceCategoryPage.commercial-electrician .pageHero .pageHeroCopy,
   .specialistPage.industrial-electrician .pageHero .pageHeroCopy{font-size:16px;line-height:1.48}
 }
+
+/* Photographic capability cards — reused wherever an appropriate existing asset is available.
+   Real job photos unless specified as decorative hero artwork. Readable navy treatment.
+   Keep image fully inside each rounded card and extend to every edge (cover). */
+.photoServiceGrid .photoServiceCard{
+  --card-top:.60;--card-bottom:.87;
+  position:relative;overflow:hidden;isolation:isolate;
+  display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;
+  min-height:270px;padding:26px;
+  background-color:#07111d;
+  background-image:
+    linear-gradient(180deg,rgba(7,17,29,var(--card-top)) 0%,rgba(7,17,29,.76) 55%,rgba(7,17,29,var(--card-bottom)) 100%),
+    var(--card-photo);
+  background-size:cover;background-position:var(--card-position,center);
+  background-repeat:no-repeat;border:1px solid rgba(239,194,65,.23);
+  color:#fff;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.025);
+  text-shadow:0 1px 12px rgba(0,0,0,.35);
+}
+.photoServiceGrid .photoServiceCard h3{
+  color:#fff;font-size:clamp(21px,2vw,25px);
+  line-height:1.2;margin:0 0 11px;letter-spacing:-.025em;
+}
+.photoServiceGrid .photoServiceCard p{
+  color:#e2e9ee;font-size:14px;line-height:1.57;
+  margin:0;text-shadow:0 1px 9px rgba(0,0,0,.5);
+}
+.photoServiceGrid .photoServiceCard .num{
+  color:#f2ca6e;font-weight:900;letter-spacing:.13em;
+  margin:0 0 auto;text-shadow:0 1px 9px rgba(0,0,0,.6);
+}
+.photoServiceGrid .photoServiceCard:hover{
+  border-color:rgba(239,194,65,.65);
+  box-shadow:0 12px 30px rgba(7,17,29,.14);
+}
+.photoServiceGrid .photoMotors{--card-photo:url("photos/commercial-drives.webp");--card-position:center 40%}
+.photoServiceGrid .photoPumps{--card-photo:url("photos/industrial-hero.webp");--card-position:70% center;--card-top:.30;--card-bottom:.73}
+.photoServiceGrid .photoDistribution{--card-photo:url("photos/old-commercial-switchboard.webp")}
+.photoServiceGrid .photoIntermittent{--card-photo:url("photos/control-board.webp")}
+.photoServiceGrid .photoMaintenance{--card-photo:url("photos/commercial-testing.webp");--card-position:center 36%}
+.photoServiceGrid .photoSites{--card-photo:url("photos/commercial-board-person.webp");--card-position:60% center}
+.photoServiceGrid .photoCommercialScene{--card-photo:url("photos/commercial-hero.webp");--card-position:65% center;--card-top:.35;--card-bottom:.79}
+.photoServiceGrid .photoSwitchboardWork{--card-photo:url("photos/commercial-board-person.webp");--card-position:60% center}
+.photoServiceGrid .photoPowerLinks{--card-photo:url("photos/commercial-links.webp")}
+.photoServiceGrid .photoControls{--card-photo:url("photos/commercial-controls.webp");--card-position:center 40%}
+.photoServiceGrid .photoRenovation{--card-photo:url("photos/renovation-roughin-1.webp")}
+@media(max-width:760px){
+  .photoServiceGrid .photoServiceCard{min-height:265px;padding:23px}
+  .photoServiceGrid .photoServiceCard h3{font-size:22px;margin:0 0 10px}
+  .photoServiceGrid .photoServiceCard p{font-size:14px;line-height:1.53}
+}
+@media(prefers-reduced-motion:reduce){.photoServiceGrid .photoServiceCard{transition:none}}
