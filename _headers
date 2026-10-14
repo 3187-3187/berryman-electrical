@@ -1,0 +1,8 @@
+# Keep the publicly accessible Cloudflare Pages staging host out of search results.
+# Host-specific matching means the approved custom production domain is unaffected.
+# Cloudflare Pages' temporary preview deployments already receive default noindex.
+https://berryman-electrical-preview.pages.dev/*
+  X-Robots-Tag: noindex, nofollow
+
+https://:version.berryman-electrical-preview.pages.dev/*
+  X-Robots-Tag: noindex, nofollow
