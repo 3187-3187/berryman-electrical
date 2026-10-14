@@ -1,7 +1,7 @@
 
 :root{
  --navy:#07111d; --navy2:#102033; --cream:#f3f0e8; --paper:#fbfaf7; --white:#fff;
- --yellow:#efc241; --yellow2:#f7df85; --ink:#0d1a28; --muted:#607083; --line:#dfe4e7;
+ --yellow:#efc241; --yellow2:#f7df85; --ink:#0d1a28; --muted:#536478; --line:#dfe4e7;
  --shadow:0 24px 70px rgba(7,17,29,.13); --radius:22px;
 }
 *{box-sizing:border-box}
@@ -63,13 +63,13 @@ h1{font-size:clamp(47px,6vw,78px);line-height:.98;letter-spacing:-.058em;margin:
 .trustGrid{display:grid;grid-template-columns:repeat(4,1fr)}
 .trustItem{padding:21px 23px;border-right:1px solid var(--line)}
 .trustItem:last-child{border-right:0}
-.trustItem span{display:block;color:#778699;font-size:9px;letter-spacing:.13em;text-transform:uppercase;font-weight:950}
+.trustItem span{display:block;color:#506175;font-size:9px;letter-spacing:.13em;text-transform:uppercase;font-weight:950}
 .trustItem b{font-size:15px}
 .section{padding:88px 0}
 .section.cream{background:var(--cream)}
 .section.white{background:#fff}
 .section.dark{background:var(--navy);color:#fff}
-.kicker{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:950;color:#8a6b05}
+.kicker{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:950;color:#725500}
 .dark .kicker{color:#efd170}
 h2{font-size:clamp(35px,4.6vw,56px);line-height:1.02;letter-spacing:-.047em;margin:12px 0 17px}
 .lead{font-size:18px;color:var(--muted);max-width:770px}
@@ -99,7 +99,7 @@ h2{font-size:clamp(35px,4.6vw,56px);line-height:1.02;letter-spacing:-.047em;marg
 .check{display:flex;gap:14px}
 .tick{width:29px;height:29px;border-radius:50%;background:#fff0b5;color:#735700;display:grid;place-items:center;font-weight:950;flex:0 0 auto}
 .check b{display:block}
-.check span{font-size:14px;color:#667689}
+.check span{font-size:14px;color:#536478}
 .areaPanel{display:grid;grid-template-columns:1fr .95fr;gap:50px;align-items:center}
 .areaButtons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:27px}
 .areaButton{border:1px solid #dcdedb;border-radius:13px;padding:14px 15px;background:#fff;font-weight:850;font-size:14px}
@@ -115,9 +115,11 @@ h2{font-size:clamp(35px,4.6vw,56px);line-height:1.02;letter-spacing:-.047em;marg
 .review{background:#fff;border:1px solid var(--line);border-radius:20px;padding:26px}
 .stars{color:#9c7300;letter-spacing:2px}
 .review p{font-size:16px}
-.review small{color:#778699;font-weight:850}
+.review small{color:#506175;font-weight:850}
 
 .quoteBand{background:var(--yellow);padding:68px 0}
+/* Higher contrast for the small heading on the gold enquiry band. */
+.quoteBand .quoteGrid > div:first-child > .kicker{color:#5b4700}
 .quoteGrid{display:grid;grid-template-columns:.85fr 1.15fr;gap:52px;align-items:start}
 .quoteGrid h2{font-size:48px}
 .form{background:#fff;border-radius:24px;padding:26px;box-shadow:0 24px 60px rgba(83,62,0,.16)}
@@ -211,6 +213,8 @@ footer a{display:block;font-size:13px;margin:7px 0}
 
 .feature{background:var(--navy2);border-radius:26px;color:#fff;padding:38px;min-height:300px}
 .feature h3{font-size:30px;letter-spacing:-.035em;margin:10px 0}.feature p{color:#bcc7d2}
+/* Keep gold labels readable on navy feature cards. */
+.feature .kicker{color:#f0d477}
 
 
 /* Version 6 — real-work proof engine */
