@@ -1,0 +1,21 @@
+name: Emergency suburb SEO checks
+on:
+  push:
+    branches: [seo-emergency-suburbs-20261016]
+  pull_request:
+    branches: [seo-first-wave-v1]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  seo-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate emergency coverage and internal links
+        run: node --test tests/emergency-suburb-seo.test.mjs
