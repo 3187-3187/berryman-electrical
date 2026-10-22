@@ -11,16 +11,16 @@ Created: 23 October 2026. **Published to the production GitHub branch `seo-first
 
 ## Batch 2 — Draft pages (23 October 2026)
 
-Batch 2 is on isolated review branch `seo-batch2-service-pages-20261023` and **not published**. User confirmed they hold a data cabling registration; the communications page does not claim an unverified registration number or specialised endorsements.
+**Published to the production branch `seo-first-wave-v1` on 23 October 2026**, via GitHub PR #5, merge commit `dbd42bbbe557e6e6fca12cee52972caceb5d9efd`. Cloudflare Pages reports a successful deployment for the merge commit. User confirmed they hold data cabling registration; the communications page does not claim an unverified registration number or specialised endorsements. Live custom-domain HTTP checks remain unconfirmed due to external access restrictions.
 
 | New page | Primary search topic | Secondary search intent | Status |
 | --- | --- | --- | --- |
-| /services/strata-property-manager-electrician/ | strata electrician Byron Bay | property manager electrician, common area lighting, strata maintenance | Draft — review |
-| /services/pump-controls-automation/ | pump control electrician Byron Bay | industrial pump controls, wastewater control panels, starters, electrical telemetry fault finding | Draft — review |
-| /services/house-rewiring-new-home-wiring/ | house rewiring Byron Bay | new home electrical wiring, full rewiring, partial rewires, rough-ins | Draft — review |
-| /services/data-communications-cabling/ | data cabling Byron Bay | registered cabler, CAT6, Ethernet points, structured cabling | Draft — review |
+| /services/strata-property-manager-electrician/ | strata electrician Byron Bay | property manager electrician, common area lighting, strata maintenance | Released 23 Oct 2026 |
+| /services/pump-controls-automation/ | pump control electrician Byron Bay | industrial pump controls, wastewater control panels, starters, electrical telemetry fault finding | Released 23 Oct 2026 |
+| /services/house-rewiring-new-home-wiring/ | house rewiring Byron Bay | new home electrical wiring, full rewiring, partial rewires, rough-ins | Released 23 Oct 2026 |
+| /services/data-communications-cabling/ | data cabling Byron Bay | registered cabler, CAT6, Ethernet points, structured cabling | Released 23 Oct 2026 |
 
-Finalise scope, test on mobile/tablet/desktop, check data registration scope and genuine photo captions, and confirm Cloudflare deployment controls before a release.
+Launch checks: draft browser QA passed on mobile, tablet and desktop, including the enquiry function. Four new service URLs are on the Services hub and in the 33-URL production-branch sitemap. Continue monitoring live indexing, actual enquiries and the separate legacy whole-site QA results. Future data work must remain within the contractor's applicable cabling registration/competencies.
 
 Release checks: GitHub's browser QA on mobile, tablet and desktop passed for the new pages in the review branch. All four new canonical URLs appear in the production branch sitemap (29 URLs total). Cloudflare Pages build/deployment succeeded on the merge commit. Individual live custom-domain HTTP responses and Google indexation were not independently confirmed through this workspace. Optional real job photos can be added after the launch.
 
