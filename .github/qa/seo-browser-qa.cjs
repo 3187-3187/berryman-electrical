@@ -13,6 +13,10 @@ const PAGES = [
   ['ev-charger', '/services/ev-charger-installation/'],
   ['power-lighting-fans', '/services/power-lighting-fans/'],
   ['services-hub', '/services/'],
+  ['strata-property-manager', '/services/strata-property-manager-electrician/'],
+  ['pump-controls', '/services/pump-controls-automation/'],
+  ['house-rewiring', '/services/house-rewiring-new-home-wiring/'],
+  ['data-communications', '/services/data-communications-cabling/'],
   ['contact', '/contact/'],
   ['service-areas', '/areas/'],
   ['mullumbimby', '/areas/electrician-mullumbimby/'],
@@ -192,9 +196,30 @@ const browserErrors = [];
         if (!checks.noBusinessBase) problems.push('Business base repeated');
         if (!checks.archiveHonest) problems.push('Missing image evidence caveat');
       }
+      if (['strata-property-manager','pump-controls','house-rewiring','data-communications'].includes(name)) {
+        if (await page.locator('main .serviceCard').count() < 17) problems.push('Missing specialist service content');
+        if (await page.locator('main .staticFaq details').count() !== 6) problems.push('Expected six specialist FAQs');
+        const validated = await page.evaluate(() => {
+          const parsed=[...document.querySelectorAll('script[type="application/ld+json"]')].map(el=>{try{return JSON.parse(el.textContent)}catch{return null}});
+          const faq=parsed.find(x=>x?.['@type']==='FAQPage');
+          const service=parsed.find(x=>x?.['@type']==='Service');
+          const shown=[...document.querySelectorAll('main .staticFaq details')].map(x=>({
+            name:x.querySelector('summary')?.textContent.trim(),
+            text:x.querySelector('p')?.textContent.trim()
+          }));
+          return {
+            faqMatch:!!faq&&faq.mainEntity.length===shown.length&&faq.mainEntity.every((q,i)=>q.name===shown[i].name&&q.acceptedAnswer.text===shown[i].text),
+            serviceMatch:!!service&&service.url===document.querySelector('link[rel="canonical"]')?.href,
+            bodyText:document.querySelector('main')?.textContent||''
+          };
+        });
+        if (!validated.faqMatch) problems.push('Specialist FAQ structured data does not match visible FAQs');
+        if (!validated.serviceMatch) problems.push('Specialist Service structured data URL mismatch');
+        if (name==='data-communications' && !validated.bodyText.includes('cabling registration')) problems.push('Registered cabler scope text missing');
+      }
       if (name === 'services-hub') {
-        if (await page.locator('main .hubServiceCard').count() !== 13) problems.push('Expected thirteen service cards, including four new specialist services');
-        for (const target of ['underground-power-submains/', 'commercial-electrical-maintenance/', 'smoke-alarm-installation/', 'hot-water-electrical-repairs/']) {
+        if (await page.locator('main .hubServiceCard').count() !== 17) problems.push('Expected seventeen service cards, including both four-page SEO batches');
+        for (const target of ['underground-power-submains/', 'commercial-electrical-maintenance/', 'smoke-alarm-installation/', 'hot-water-electrical-repairs/', 'strata-property-manager-electrician/', 'pump-controls-automation/', 'house-rewiring-new-home-wiring/', 'data-communications-cabling/']) {
           if (await page.locator('main .hubServiceGrid a[href="' + target + '"]').count() !== 1) problems.push('Missing new service card ' + target);
         }
         if (await page.locator('main a[href="emergency-electrician/"]').count()) problems.push('Linked to unpublished emergency service page');
