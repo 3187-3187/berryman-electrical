@@ -24,6 +24,12 @@ fs.mkdirSync(output,{recursive:true});
    page.on('pageerror',err=>problems.push('JavaScript: '+err.message));
    const res=await page.goto(base+url,{waitUntil:'networkidle',timeout:30000});
    if(res.status()!==200)problems.push('HTTP '+res.status());
+   // Images below the fold use loading=lazy; request and decode them before testing integrity.
+   await page.evaluate(async()=>{
+     const imgs=[...document.images];
+     for(const img of imgs) img.loading='eager';
+     await Promise.all(imgs.map(img=>img.decode().catch(()=>{})));
+   });
    const info=await page.evaluate(()=>{
     const main=document.querySelector('main');
     const canonical=document.querySelector('link[rel=canonical]')?.href||'';
