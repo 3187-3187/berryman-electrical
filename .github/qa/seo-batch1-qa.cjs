@@ -53,7 +53,7 @@ fs.mkdirSync(output,{recursive:true});
    if(!info.canonical.startsWith('https://www.berrymanelectrical.com.au/'))problems.push('Unexpected canonical');
    if(!info.title)problems.push('Missing title');
    if(name!=='services-hub' && (info.description.length<90 || info.description.length>170))problems.push('Description length');
-   if(name!=='services-hub' && (info.faqCount!==5 || info.faqMatches!==true))problems.push('FAQ schema mismatch');
+   if(name!=='services-hub' && (info.faqCount!==(name==='smoke-alarm-installation'?7:5) || info.faqMatches!==true))problems.push('FAQ schema mismatch');
    for(const img of info.imgs)if(!img.loaded)problems.push('Image failed: '+img.src);
    if(view==='desktop'&&!(await page.locator('header .navlinks').isVisible()))problems.push('Desktop nav not visible');
    if(view==='mobile'){
