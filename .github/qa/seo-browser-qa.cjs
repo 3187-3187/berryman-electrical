@@ -193,7 +193,10 @@ const browserErrors = [];
         if (!checks.archiveHonest) problems.push('Missing image evidence caveat');
       }
       if (name === 'services-hub') {
-        if (await page.locator('main .hubServiceCard').count() !== 9) problems.push('Expected nine service cards, including industrial');
+        if (await page.locator('main .hubServiceCard').count() !== 13) problems.push('Expected thirteen service cards, including four new specialist services');
+        for (const target of ['underground-power-submains/', 'commercial-electrical-maintenance/', 'smoke-alarm-installation/', 'hot-water-electrical-repairs/']) {
+          if (await page.locator('main .hubServiceGrid a[href="' + target + '"]').count() !== 1) problems.push('Missing new service card ' + target);
+        }
         if (await page.locator('main a[href="emergency-electrician/"]').count()) problems.push('Linked to unpublished emergency service page');
       }
       if (name === 'homepage' || name === 'byron-bay') {
