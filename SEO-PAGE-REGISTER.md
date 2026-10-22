@@ -6,7 +6,7 @@ Created: 23 October 2026. The four new pages below are drafts on the unmerged `s
 | --- | --- | --- | --- |
 | /services/underground-power-submains/ | underground power Byron Bay | submain electrician, shed power, outbuilding power | Draft — awaiting review |
 | /services/commercial-electrical-maintenance/ | commercial electrical maintenance Byron Bay | electrical maintenance contractor, commercial repairs | Draft — awaiting review |
-| /services/smoke-alarm-installation/ | smoke alarm installation and compliance Byron Bay | hard-wired alarm certification; residential property checks; commercial partner-coordinated sign-off | Draft — awaiting review |
+| /services/smoke-alarm-installation/ | smoke alarm certification Byron Bay | smoke alarm compliance, residential checks, commercial accredited partner sign-off and hard-wired installation | Draft — awaiting review |
 | /services/hot-water-electrical-repairs/ | hot water electrician Byron Bay | electric hot water not heating, hot water breaker tripping | Draft — awaiting review |
 
 Review checklist: verify service scope and claims, test mobile and desktop layouts, verify contact and internal links, confirm optional real photos, check title, description, canonical URL and structured data. All new sitemap entries currently exist only in this review branch.
