@@ -7,6 +7,7 @@ on:
       - 'contact/**'
       - 'services/**'
       - 'assets/site.js'
+      - 'assets/enquiry-online.js'
       - 'functions/api/enquiry.js'
       - 'tests/contact-enquiry.test.mjs'
       - '.github/qa/seo-browser-qa.cjs'
