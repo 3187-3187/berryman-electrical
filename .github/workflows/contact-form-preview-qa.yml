@@ -1,0 +1,51 @@
+name: Simplified contact form review QA
+
+on:
+  push:
+    branches: [contact-form-simplification-20261023]
+    paths:
+      - 'contact/**'
+      - 'services/**'
+      - 'assets/site.js'
+      - 'functions/api/enquiry.js'
+      - 'tests/contact-enquiry.test.mjs'
+      - '.github/qa/seo-browser-qa.cjs'
+      - '.github/qa/contact-online-qa.cjs'
+      - '.github/workflows/contact-form-preview-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contact-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out review branch
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test backend validation and delivery using mocks
+        run: node --experimental-default-type=module --test tests/contact-enquiry.test.mjs
+      - name: Install Playwright
+        run: npm install --prefix /tmp/berryman-contact-qa --no-save playwright
+      - name: Install Chromium
+        run: /tmp/berryman-contact-qa/node_modules/.bin/playwright install --with-deps chromium
+      - name: Serve branch locally, not publicly
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/berryman-contact-qa.log 2>&1 &
+          sleep 2
+      - name: Full website browser QA
+        run: NODE_PATH=/tmp/berryman-contact-qa/node_modules node .github/qa/seo-browser-qa.cjs
+      - name: Verify smoke alarm form prefill and mocked email payload
+        run: NODE_PATH=/tmp/berryman-contact-qa/node_modules node .github/qa/contact-online-qa.cjs
+      - name: Upload QA artefacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: simplified-contact-form-qa
+          path: qa-output/
+          retention-days: 14
