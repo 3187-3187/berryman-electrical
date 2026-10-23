@@ -181,7 +181,7 @@ test('accepts simplified enquiry categories and specialist service-page context'
       'Underground power & submains','Commercial electrical maintenance'
     ];
     for(const jobType of choices){
-      const result=await json(await onRequestPost(ctx(req({jobType})));
+      const result=await json(await onRequestPost(ctx(req({jobType}))));
       assert.equal(result.status,200,jobType);
       assert.equal(result.body.ok,true);
     }
