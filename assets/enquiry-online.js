@@ -151,7 +151,7 @@
   script.async = true;
   script.onload = () => {
     if (!window.turnstile?.render) {
-      state('Online verification is unavailable. Use the email draft or call us.', true);
+      state('Online verification is unavailable. Email us directly or call.', true);
       return;
     }
     try {
@@ -175,18 +175,18 @@
           token = '';
           button.disabled = true;
           hasError = true;
-          state('Verification unavailable. Use the email draft or call.', true);
+          state('Verification unavailable. Email or call us.', true);
         },
       });
       if (widgetId === undefined || widgetId === null) {
         button.disabled = true;
-        state('Online verification could not load. Use the email draft or call.', true);
+        state('Online verification could not load. Email or call us.', true);
       }
     } catch {
-      state('Online verification could not load. Use the email draft or call.', true);
+      state('Online verification could not load. Email or call us.', true);
     }
   };
-  script.onerror = () => state('Online verification could not load. Use the email draft or call.', true);
+  script.onerror = () => state('Online verification could not load. Email or call us.', true);
   document.head.appendChild(script);
 
   button.addEventListener('click', async () => {
@@ -260,13 +260,13 @@
           'Files must be JPG, PNG, WebP, HEIC, HEIF or PDF (up to 4 files, 5 MB each, 10 MB total).'
         ]);
         const reason = knownReasons.has(body?.error) ? body.error + ' ' : '';
-        state(reason + 'Online delivery could not be confirmed. Your details are still here. Please retry or use the email draft or phone.', true);
+        state(reason + 'Online delivery could not be confirmed. Your details are still here. Please retry or email or call us.', true);
       }
     } catch {
       hasError = true;
       state(preparingFiles
         ? 'Your attachments could not be read. Please select the files again, or send your enquiry without attachments.'
-        : 'Online delivery could not be confirmed. Your details are still here. Please use the email draft or phone.', true);
+        : 'Online delivery could not be confirmed. Your details are still here. Please email or call us.', true);
     } finally {
       if (timer) clearTimeout(timer);
       pending = false;

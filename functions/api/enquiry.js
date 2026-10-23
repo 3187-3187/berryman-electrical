@@ -9,7 +9,13 @@ const TYPES = new Set([
   'Residential electrical work', 'Fault finding / repair',
   'Switchboard assessment', 'Lighting / power / fans',
   'Commercial electrical work', 'Industrial electrical work', 'EV charger installation',
-  'Renovation / electrical upgrade', 'Other planned electrical work'
+  'Renovation / electrical upgrade', 'Other planned electrical work',
+  'Not sure / general enquiry', 'Installation or upgrade',
+  'Inspection or certification', 'Business or property maintenance',
+  'Commercial electrical maintenance', 'Data & communications cabling',
+  'Hot water electrical fault', 'House rewiring & new home wiring',
+  'Pump controls & automation', 'Smoke alarm certification & installation',
+  'Strata & property management', 'Underground power & submains'
 ]);
 // Conservative limits keep image enquiry emails reasonably small.
 const MAX_FILES = 4;

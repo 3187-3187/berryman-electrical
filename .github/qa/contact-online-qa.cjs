@@ -33,7 +33,30 @@ const report=[];
      if(await page.locator('form [data-online-send]').isVisible())errors.push('Inactive online-send button visible');
      if(await page.locator('[data-online-attachments]').isVisible())errors.push('Attachments visible without online delivery');
    }
-   report.push({case:'configured preview state / '+width,errors:[...errors]});
+   // The service-page CTA must carry context all the way to the form.
+   await page.goto(ROOT+'/services/smoke-alarm-installation/',{waitUntil:'domcontentloaded'});
+   const smokeCTA=page.locator('main a[href="../../contact/?service=smoke-alarm-installation"]');
+   if(!(await smokeCTA.count()))errors.push('Smoke alarm CTA does not preserve service context');
+   else{
+     await smokeCTA.first().click();
+     await page.waitForURL('**/contact/?service=smoke-alarm-installation');
+     if(await page.locator('select[name="job_type"]').inputValue()!=='Smoke alarm certification & installation')
+       errors.push('Smoke alarm service is not automatically selected');
+     if(!(await page.locator('#job-type-context').isVisible()))
+       errors.push('Selected service help text is missing');
+   }
+   await page.goto(ROOT+'/contact/',{waitUntil:'domcontentloaded'});
+   if(await page.locator('select[name="job_type"]').inputValue()!=='Not sure / general enquiry')
+     errors.push('Direct visitors should not have to choose a work type');
+   if(await page.locator('select[name="job_type"] option').count()!==5)
+     errors.push('Direct visitors see too many category choices');
+   await page.goto(ROOT+'/contact/?service=data-communications-cabling',{waitUntil:'domcontentloaded'});
+   if(await page.locator('select[name="job_type"]').inputValue()!=='Data & communications cabling')
+     errors.push('Data cabling context not recognised');
+   await page.goto(ROOT+'/contact/?service=invalid-value',{waitUntil:'domcontentloaded'});
+   if(await page.locator('select[name="job_type"]').inputValue()!=='Not sure / general enquiry')
+     errors.push('Unexpected URL context should never be accepted');
+   report.push({case:'configured preview state and service prefills / '+width,errors:[...errors]});
    if(errors.length)throw Error(report[report.length-1].case+': '+errors.join(' | '));
    await page.close();
  }
@@ -60,16 +83,16 @@ const report=[];
      await route.fulfill({status:responseCode,contentType:'application/json',
        body:JSON.stringify(responseCode===200?{ok:true,message:'Accepted'}:{ok:false,error:'Not delivered'})});
    });
-   await page.goto(ROOT+'/contact/?service=lighting',{waitUntil:'domcontentloaded',timeout:16000});
+   await page.goto(ROOT+'/contact/?service=smoke-alarm-installation',{waitUntil:'domcontentloaded',timeout:16000});
    await page.locator('[data-online-enquiry]').waitFor({state:'visible'});
    await page.waitForFunction(()=>document.querySelector('[data-online-send]')?.disabled===false);
-   if(await page.locator('select[name="job_type"]').inputValue()!=='Lighting / power / fans')errors.push('Wrong service prefilling');
+   if(await page.locator('select[name="job_type"]').inputValue()!=='Smoke alarm certification & installation')errors.push('Wrong smoke alarm service prefill');
    if(await page.locator('form button[type="submit"]').isVisible())errors.push('Email draft button still visible when online sending enabled');
    if(!(await page.locator('form a[href^="mailto:"]').first().isVisible()))errors.push('Email fallback link not accessible');
    await page.locator('input[name="suburb"]').fill('Byron Bay');
    await page.locator('input[name="name"]').fill('Test Person');
    await page.locator('input[name="contact"]').fill('test@example.net');
-   await page.locator('textarea[name="job_details"]').fill('Install two new ceiling fans in the living room');
+   await page.locator('textarea[name="job_details"]').fill('Certification check and replacement for two hard-wired smoke alarms');
    await page.locator('input[name="attachments"]').setInputFiles({
      name:'switchboard.jpg',mimeType:'image/jpeg',
      buffer:Buffer.from([255,216,255,224,0,16,74,70,73,70,0])
@@ -85,7 +108,7 @@ const report=[];
    await page.locator('[data-online-send]').click();
    await page.waitForFunction(()=>document.querySelector('[data-online-status]')?.textContent.includes('accepted for email delivery'));
    if(posts.length!==2)errors.push('Expected a single retry POST');
-   if(posts[0]?.jobType!=='Lighting / power / fans')errors.push('Incorrect posted service');
+   if(posts[0]?.jobType!=='Smoke alarm certification & installation')errors.push('Incorrect posted service');
    if(posts[0]?.attachments?.length!==1 || posts[0]?.attachments?.[0]?.filename!=='switchboard.jpg' ||
       !posts[0]?.attachments?.[0]?.content?.startsWith('/9j/')) errors.push('Photo attachment missing from POST');
    if(await page.locator('input[name="attachments"]').inputValue()!=='')errors.push('Photo selection not reset after success');

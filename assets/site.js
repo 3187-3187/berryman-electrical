@@ -18,11 +18,42 @@
      industrial:'Industrial electrical work',
      ev:'EV charger installation',
      renovation:'Renovation / electrical upgrade',
-     planned:'Other planned electrical work'
+     planned:'Other planned electrical work',
+     'commercial-electrical-maintenance':'Commercial electrical maintenance',
+     'commercial-electrician':'Commercial electrical work',
+     'data-communications-cabling':'Data & communications cabling',
+     'ev-charger-installation':'EV charger installation',
+     'fault-finding-electrical-repairs':'Fault finding / repair',
+     'hot-water-electrical-repairs':'Hot water electrical fault',
+     'house-rewiring-new-home-wiring':'House rewiring & new home wiring',
+     'industrial-electrician':'Industrial electrical work',
+     'power-lighting-fans':'Lighting / power / fans',
+     'pump-controls-automation':'Pump controls & automation',
+     'renovations-upgrades':'Renovation / electrical upgrade',
+     'residential-electrician':'Residential electrical work',
+     'smoke-alarm-installation':'Smoke alarm certification & installation',
+     'strata-property-manager-electrician':'Strata & property management',
+     'switchboard-upgrades':'Switchboard assessment',
+     'underground-power-submains':'Underground power & submains'
    };
    const selected=new URLSearchParams(window.location.search).get('service');
    const typeSelect=enquiry.querySelector('select[name="job_type"]');
-   if(selected&&types[selected]&&typeSelect)typeSelect.value=types[selected];
+   if(selected && Object.hasOwn(types, selected) && typeSelect){
+     const value=types[selected];
+     let option=Array.from(typeSelect.options).find(x=>x.value===value);
+     if(!option){
+       option=document.createElement('option');
+       option.value=value;
+       option.textContent=value;
+       typeSelect.add(option, 0);
+     }
+     typeSelect.value=value;
+     const context=enquiry.querySelector('#job-type-context');
+     if(context)context.hidden=false;
+     const description=enquiry.querySelector('textarea[name="job_details"]');
+     if(description && selected==='smoke-alarm-installation')
+       description.placeholder='For example: Need smoke alarm compliance checks for a rental, or replacement of two hard-wired alarms.';
+   }
    // The Byron Bay location-page CTA can carry a non-sensitive suburb hint.
    const suburb=new URLSearchParams(window.location.search).get('suburb');
    const suburbInput=enquiry.querySelector('input[name="suburb"]');
