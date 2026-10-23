@@ -155,7 +155,7 @@ const browserErrors = [];
         if (await page.locator('main .realPhoto img').count()!==3) problems.push('Expected three EV gallery images');
         if (await page.locator('main .evFeatureMedia img').count()!==1) problems.push('Expected genuine hero proof photo');
         if (await page.locator('main .staticFaq details').count()!==7) problems.push('Expected seven EV FAQs');
-        if (await page.locator('main a[href="../../contact/?service=ev"]').count()<3) problems.push('EV enquiry CTAs missing service preselection');
+        if (await page.locator('main a[href="../../contact/?service=ev-charger-installation"]').count()<3) problems.push('EV enquiry CTAs missing service preselection');
         const schemaChecks=await page.evaluate(()=>{
           const scripts=[...document.querySelectorAll('script[type="application/ld+json"]')].map(el=>{try{return JSON.parse(el.textContent)}catch{return null}});
           const faq=scripts.find(x=>x?.['@type']==='FAQPage');
@@ -177,7 +177,7 @@ const browserErrors = [];
         if (await page.locator('main .powerGuidance').count() !== 4) problems.push('Equipment guidance cards missing');
         if (await page.locator('main .realPhoto img').count() !== 3) problems.push('Genuine work archive photos missing');
         if (await page.locator('main .staticFaq details').count() !== 7) problems.push('Expected seven lighting/power FAQs');
-        if (await page.locator('main a[href="../../contact/?service=lighting"]').count() < 3) problems.push('Lighting enquiry CTAs not using preselected contact path');
+        if (await page.locator('main a[href="../../contact/?service=power-lighting-fans"]').count() < 3) problems.push('Lighting enquiry CTAs not using preselected contact path');
         const checks = await page.evaluate(() => {
           const json=[...document.querySelectorAll('script[type="application/ld+json"]')].map(x=>{try{return JSON.parse(x.textContent)}catch{return null}});
           const service=json.find(x=>x?.['@type']==='Service');
