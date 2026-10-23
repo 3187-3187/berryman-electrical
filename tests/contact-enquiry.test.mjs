@@ -160,3 +160,35 @@ test('keeps legacy text-only enquiries working without attachments',async()=>{
     assert.equal(sent.attachments,undefined);
   }finally{globalThis.fetch=before;}
 });
+
+
+test('accepts simplified enquiry categories and specialist service-page context',async()=>{
+  const before=globalThis.fetch;
+  const emails=[];
+  globalThis.fetch=async(url,opts)=>{
+    if(String(url).includes('siteverify'))return Response.json({success:true,hostname:'preview.example.com'});
+    const submitted=JSON.parse(opts.body);
+    emails.push(submitted);
+    return Response.json({id:'accepted-category-'+emails.length});
+  };
+  try{
+    const choices=[
+      'Not sure / general enquiry', 'Fault finding / repair','Installation or upgrade',
+      'Inspection or certification','Business or property maintenance',
+      'Smoke alarm certification & installation','Data & communications cabling',
+      'Strata & property management','Pump controls & automation',
+      'House rewiring & new home wiring','Hot water electrical fault',
+      'Underground power & submains','Commercial electrical maintenance'
+    ];
+    for(const jobType of choices){
+      const result=await json(await onRequestPost(ctx(req({jobType})));
+      assert.equal(result.status,200,jobType);
+      assert.equal(result.body.ok,true);
+    }
+    assert.equal(emails.length,choices.length);
+    for(let i=0;i<choices.length;i++){
+      assert.equal(emails[i].subject,'Website enquiry: '+choices[i]);
+      assert.match(emails[i].text,/Name: Test Customer/);
+    }
+  } finally {globalThis.fetch=before;}
+});
