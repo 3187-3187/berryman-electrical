@@ -25,3 +25,16 @@ Launch checks: draft browser QA passed on mobile, tablet and desktop, including 
 Release checks: GitHub's browser QA on mobile, tablet and desktop passed for the new pages in the review branch. All four new canonical URLs appear in the production branch sitemap (29 URLs total). Cloudflare Pages build/deployment succeeded on the merge commit. Individual live custom-domain HTTP responses and Google indexation were not independently confirmed through this workspace. Optional real job photos can be added after the launch.
 
 Post-launch: monitor Google Search Console query and page impressions, clicks, CTR, average position and attributable enquiries. Record meaningful changes monthly and avoid inferring rankings from page existence alone. The separate `berryman-gsc-bridge` Cloudflare Worker showed a build failure at release; it was not the successful Cloudflare Pages website deployment.
+
+
+## Emergency service consolidation — 4 November 2026
+
+Consolidates emergency-service content on the main Berryman Electrical domain.
+
+| Page | Primary search topic | Supporting intent |
+| --- | --- | --- |
+| /services/emergency-electrician-byron-bay/ | emergency electrician Byron Bay | 24-hour electrician, after-hours electrical faults, commercial breakdowns |
+
+The homepage, Services hub, Byron Bay area page and fault-finding page support the new page. Primary and mobile navigation and service footers link to it across the site. The main site no longer sends visitors to the separate emergency domain. The new page keeps the existing business identity and licence, with Service hours and matching FAQ structured data.
+
+The separate `emergencyelectricianbyronbay.com.au` host must be redirected at its existing Cloudflare configuration after the destination is verified live. This repository update alone does not retire that host. Retain domain registration and HTTPS for the redirect.
