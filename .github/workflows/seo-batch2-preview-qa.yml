@@ -1,0 +1,46 @@
+name: Batch 2 SEO review browser QA
+
+on:
+  push:
+    branches: [seo-batch2-service-pages-20261023]
+    paths:
+      - 'services/**'
+      - 'areas/**'
+      - 'assets/**'
+      - '.github/qa/seo-browser-qa.cjs'
+      - '.github/workflows/seo-batch2-preview-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-draft-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out SEO review branch
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test enquiry function without sending any email
+        run: node --experimental-default-type=module --test tests/contact-enquiry.test.mjs
+      - name: Install Playwright in temporary workspace
+        run: npm install --prefix /tmp/berryman-seo-batch2 --no-save playwright
+      - name: Install Chromium
+        run: /tmp/berryman-seo-batch2/node_modules/.bin/playwright install --with-deps chromium
+      - name: Serve GitHub branch locally (never publish)
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/berryman-seo-batch2.log 2>&1 &
+          sleep 2
+      - name: Browser-test website and four new pages at mobile, tablet and desktop widths
+        run: NODE_PATH=/tmp/berryman-seo-batch2/node_modules node .github/qa/seo-browser-qa.cjs
+      - name: Upload screenshots and QA report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-batch2-browser-qa
+          path: qa-output/
+          retention-days: 14

@@ -1,0 +1,83 @@
+name: Build Byron Bay single-file review
+on:
+  push:
+    branches:
+      - seo-first-wave-v1
+    paths:
+      - '.github/workflows/byron-single-file-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out review branch
+        uses: actions/checkout@v4
+      - name: Build standalone Byron Bay HTML preview
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import pathlib, re, base64
+          from urllib.parse import urljoin
+          root = pathlib.Path(".")
+          page = root / "areas/electrician-byron-bay/index.html"
+          css = (root / "assets/site.css").read_text(encoding="utf-8")
+          js = (root / "assets/site.js").read_text(encoding="utf-8")
+          html = page.read_text(encoding="utf-8")
+          original_size = len(html)
+          stylesheet = '<link rel="stylesheet" href="../../assets/site.css"/>'
+          script = '<script defer src="../../assets/site.js"></script>'
+          assert html.count(stylesheet) == 1, "Stylesheet link changed"
+          assert html.count(script) == 1, "Script link changed"
+          assert "</style" not in css.lower()
+          assert "</script" not in js.lower()
+          html = html.replace(stylesheet, '<style>\n' + css + '\n</style>')
+          html = html.replace(script, '<script>\n' + js + '\n</script>')
+          files = []
+          def embed(match):
+              attr, ref = match.groups()
+              if not ref.startswith("../../assets/"):
+                  return match.group(0)
+              local = root / ref.removeprefix("../../")
+              if not local.is_file():
+                  raise FileNotFoundError(str(local))
+              extension = local.suffix.lower()
+              mime = {".webp":"image/webp", ".jpg":"image/jpeg", ".jpeg":"image/jpeg", ".png":"image/png", ".svg":"image/svg+xml"}
+              if extension not in mime:
+                  raise ValueError(str(local))
+              b64 = base64.b64encode(local.read_bytes()).decode("ascii")
+              files.append((str(local), local.stat().st_size))
+              return attr + '="data:' + mime[extension] + ';base64,' + b64 + '"'
+          html = re.sub(r'(src|href)="(\.\./\.\./assets/[^"]+)"', embed, html)
+          rooturl = "https://www.berrymanelectrical.com.au/areas/electrician-byron-bay/"
+          def links(match):
+              attr, url = match.groups()
+              if url.startswith("../"):
+                  return attr + '="' + urljoin(rooturl, url) + '"'
+              return match.group(0)
+          html = re.sub(r'(href)="([^"]+)"', links, html)
+          html = re.sub(r'<meta name="robots" content="[^"]*"/>', '<meta name="robots" content="noindex,nofollow"/>', html)
+          banner = ('<div class="review-preview-banner" role="note" style="background:#fbe7a1;color:#192535;'
+                    'padding:10px 16px;text-align:center;font:600 13px/1.5 system-ui,sans-serif">'
+                    'REVIEW PREVIEW — not published. This page uses the rebuilt Byron Bay code. '
+                    'Menu links lead to the current live website; phone buttons dial the real number.'
+                    '</div>')
+          assert '<body class="hasStickyActions">' in html
+          html = html.replace('<body class="hasStickyActions">', '<body class="hasStickyActions">' + banner, 1)
+          assert 'src="../../assets' not in html and 'href="../../assets' not in html
+          assert html.count('<h1>') == 1
+          assert len(files) >= 5, files
+          path = root / 'preview/byron-bay-review.html'
+          path.parent.mkdir(exist_ok=True)
+          path.write_text(html, encoding='utf-8')
+          print('Source HTML bytes:', original_size)
+          print('Self-contained preview bytes:', path.stat().st_size)
+          print('Embedded files:', files)
+          PY
+      - name: Upload browser-openable HTML
+        uses: actions/upload-artifact@v4
+        with:
+          name: byron-bay-single-file-preview
+          path: preview/byron-bay-review.html
+          retention-days: 14
